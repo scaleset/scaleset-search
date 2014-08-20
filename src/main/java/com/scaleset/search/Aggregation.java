@@ -34,6 +34,10 @@ public class Aggregation {
         return (String) properties.get(key);
     }
 
+    public Integer getInteger(String key) {
+        return ((Integer) properties.get(key));
+    }
+
     @JsonAnySetter
     public Aggregation property(String name, Object value) {
         properties.put(name, value);
