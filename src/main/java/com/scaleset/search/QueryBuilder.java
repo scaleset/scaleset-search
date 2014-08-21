@@ -11,7 +11,7 @@ public class QueryBuilder {
     private Envelope bbox;
     private String geoField;
     private int offset = 0;
-    private int limit = -1;
+    private Integer limit = 10;
     private String q = "";
     private List<Sort> sorts = new ArrayList<>();
     private Boolean echo;

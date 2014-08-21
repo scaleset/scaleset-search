@@ -17,7 +17,7 @@ public class Query {
 
     private int limit;
 
-    private int offset;
+    private int offset = 0;
 
     private String q;
 
