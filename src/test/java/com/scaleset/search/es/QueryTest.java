@@ -6,7 +6,6 @@ import com.scaleset.geo.FeatureCollection;
 import com.scaleset.geo.FeatureCollectionHandler;
 import com.scaleset.geo.geojson.GeoJsonParser;
 import com.scaleset.search.*;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -14,16 +13,17 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.junit.*;
 
-import java.io.FileInputStream;
-
-import static org.elasticsearch.client.Requests.createIndexRequest;
-
 public class QueryTest extends Assert {
 
     private static FeatureCollection earthquakes;
     private static Node node;
     private Client client;
     private ElasticSearchDao<Feature, String> featureDao;
+
+    @AfterClass
+    public static void afterClass() {
+        node.close();
+    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -39,9 +39,20 @@ public class QueryTest extends Assert {
         earthquakes = earthquakes();
     }
 
-    @AfterClass
-    public static void afterClass() {
-        node.close();
+    private static FeatureCollection earthquakes() throws Exception {
+        FeatureCollectionHandler handler = new FeatureCollectionHandler();
+        GeoJsonParser parser = new GeoJsonParser();
+        parser.handler(handler);
+        parser.parse(QueryTest.class.getResourceAsStream("/earthquakes_2.5_day.geojson"));
+        FeatureCollection result = handler.getCollection();
+        assertEquals(46, result.getFeatures().size());
+        return result;
+    }
+
+    @After
+    public void after() throws Exception {
+        featureDao.deleteIndex("features");
+        client.close();
     }
 
     @Before
@@ -54,6 +65,11 @@ public class QueryTest extends Assert {
             featureDao.save(feature);
         }
         featureDao.flush();
+    }
+
+    @Test
+    public void sanityTest() {
+        assertNotNull(client);
     }
 
     @Test
@@ -76,27 +92,6 @@ public class QueryTest extends Assert {
         Results<Feature> results = featureDao.search(query);
         AggregationResults aggResults = results.getAgg("magnitudeType");
         assertNotNull(aggResults);
-    }
-
-    @After
-    public void after() throws Exception {
-        featureDao.deleteByQuery(new QueryBuilder("*:*").build());
-        client.close();
-    }
-
-    @Test
-    public void sanityTest() {
-        assertNotNull(client);
-    }
-
-    private static FeatureCollection earthquakes() throws Exception {
-        FeatureCollectionHandler handler = new FeatureCollectionHandler();
-        GeoJsonParser parser = new GeoJsonParser();
-        parser.handler(handler);
-        parser.parse(QueryTest.class.getResourceAsStream("/earthquakes_2.5_day.geojson"));
-        FeatureCollection result = handler.getCollection();
-        assertEquals(46, result.getFeatures().size());
-        return result;
     }
 
 }

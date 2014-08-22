@@ -5,6 +5,7 @@ import com.scaleset.search.QueryBuilder;
 import com.scaleset.search.Results;
 import com.scaleset.search.GenericSearchDao;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.elasticsearch.client.Requests.createIndexRequest;
+import static org.elasticsearch.client.Requests.deleteIndexRequest;
 
 public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
 
@@ -130,6 +132,11 @@ public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
 
     public void createIndex(String indexName) {
         CreateIndexResponse createResponse = client.admin().indices().create(createIndexRequest(indexName)).actionGet();
+    }
+
+    public void deleteIndex(String indexName) {
+        DeleteIndexResponse deleteIndexResponse =
+                client.admin().indices().delete(deleteIndexRequest(indexName)).actionGet();
     }
 
     public void recreateMapping(String index, String type, String schema) {
