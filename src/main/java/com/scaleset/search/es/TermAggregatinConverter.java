@@ -30,6 +30,10 @@ public class TermAggregatinConverter implements AggregationConverter {
         String script = aggregation.getString("script");
         Integer limit = aggregation.getInteger("limit");
 
+        if (name == null) {
+            name = field;
+        }
+
         TermsBuilder result = terms(name);
         result.field(field);
         if (script != null) {
