@@ -19,7 +19,7 @@ public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
     protected SearchMapping<T, K> mapping;
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    protected ElasticSearchDao(Client client, SearchMapping<T, K> mapping) {
+    public ElasticSearchDao(Client client, SearchMapping<T, K> mapping) {
         this.client = client;
         this.mapping = mapping;
     }
