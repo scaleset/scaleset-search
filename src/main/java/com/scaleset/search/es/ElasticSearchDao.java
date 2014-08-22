@@ -4,6 +4,7 @@ import com.scaleset.search.Query;
 import com.scaleset.search.QueryBuilder;
 import com.scaleset.search.Results;
 import com.scaleset.search.GenericSearchDao;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -12,6 +13,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.elasticsearch.client.Requests.createIndexRequest;
 
 public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
 
@@ -126,6 +129,7 @@ public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
     }
 
     public void createIndex(String indexName) {
+        CreateIndexResponse createResponse = client.admin().indices().create(createIndexRequest(indexName)).actionGet();
     }
 
     public void recreateMapping(String index, String type, String schema) {
@@ -136,7 +140,7 @@ public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
         } catch (Exception e) {
         }
         // recreate mapping
-        client.admin().indices().preparePutMapping("entities").setType("entity").setSource(schema).execute().actionGet();
+        client.admin().indices().preparePutMapping(index).setType(type).setSource(schema).execute().actionGet();
     }
 
 }
