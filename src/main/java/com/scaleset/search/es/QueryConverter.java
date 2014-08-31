@@ -161,7 +161,7 @@ public class QueryConverter {
     }
 
     protected void registerDefaultConverters() {
-        register("term", new TermAggregatinConverter());
+        register("terms", new TermAggregatinConverter());
     }
 
 }

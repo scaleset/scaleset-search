@@ -19,6 +19,8 @@ public interface GenericSearchDao<T, KEY> {
 
     T findById(KEY id) throws Exception;
 
+    T findOne(String q) throws Exception;
+
     T save(T entity) throws Exception;
 
 }

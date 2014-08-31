@@ -1,11 +1,12 @@
 package com.scaleset.search.es;
 
-import com.scaleset.search.Query;
-import com.scaleset.search.QueryBuilder;
-import com.scaleset.search.Results;
-import com.scaleset.search.GenericSearchDao;
+import com.scaleset.search.*;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import static org.elasticsearch.client.Requests.createIndexRequest;
 import static org.elasticsearch.client.Requests.deleteIndexRequest;
 
-public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
+public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements GenericSearchDao<T, K> {
 
     protected Client client;
     protected SearchMapping<T, K> mapping;
@@ -53,11 +54,6 @@ public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
         DeleteByQueryResponse response = builder.execute().actionGet();
     }
 
-    @Override
-    public boolean exists(K id) throws Exception {
-        boolean result = findById(id) != null;
-        return result;
-    }
 
     @Override
     public T findById(K key) throws Exception {
@@ -98,24 +94,6 @@ public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
         return results;
     }
 
-    @Override
-    public long count(String q) throws Exception {
-        // hack for now.  eventually use ES search api.
-        Query query = new QueryBuilder(q).limit(0).build();
-        Results<T> results = search(query);
-        long result = results.getTotalItems();
-        return result;
-    }
-
-    public T findOne(String q) throws Exception {
-        T result = null;
-        Query query = new QueryBuilder(q).limit(1).build();
-        Results<T> results = search(query);
-        if (!results.getItems().isEmpty()) {
-            result = results.getItems().get(0);
-        }
-        return result;
-    }
 
     public SearchRequestBuilder convert(Query query) throws Exception {
         String index = mapping.indexForQuery(query);
@@ -148,6 +126,29 @@ public class ElasticSearchDao<T, K> implements GenericSearchDao<T, K> {
         }
         // recreate mapping
         client.admin().indices().preparePutMapping(index).setType(type).setSource(schema).execute().actionGet();
+    }
+
+    public boolean indexExists(String name) {
+        boolean result = false;
+        try {
+            IndicesExistsResponse exists = client.admin().indices().exists(new IndicesExistsRequest(name)).actionGet();
+            result = exists.isExists();
+        } catch (Exception e) {
+            log.error("Error checking index exists");
+        }
+        return result;
+    }
+
+    public boolean mappingExists(String indexName, String typeName) {
+        boolean result = false;
+        try {
+            String[] indices = new String[]{indexName};
+            TypesExistsResponse exists = client.admin().indices().typesExists(new TypesExistsRequest(indices, typeName)).actionGet();
+            result = exists.isExists();
+        } catch (Exception e) {
+            log.error("Error checking type exists");
+        }
+        return result;
     }
 
 }

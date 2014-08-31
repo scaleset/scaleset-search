@@ -51,7 +51,8 @@ public class SolrParamsParser {
 
     Aggregation parseFieldFacet(HttpServletRequest request, String facetField) {
         Aggregation agg = new Aggregation();
-        agg.setType("field");
+        agg.setType("terms");
+        agg.property("field", facetField);
         parseFacetSort(request, agg);
         parseFacetMinCount(request, agg);
         parseLimit(request, agg);

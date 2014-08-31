@@ -85,7 +85,7 @@ public class QueryTest extends Assert {
     public void testTermAggregation() throws Exception {
         QueryBuilder queryBuilder = new QueryBuilder();
         queryBuilder.limit(0);
-        Aggregation magAgg = new Aggregation("magnitudeType", "term");
+        Aggregation magAgg = new Aggregation("magnitudeType", "terms");
         magAgg.property("field", "properties.magnitudeType");
         queryBuilder.aggregation(magAgg);
         Query query = queryBuilder.build();
