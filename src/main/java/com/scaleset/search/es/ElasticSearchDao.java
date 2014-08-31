@@ -3,6 +3,10 @@ package com.scaleset.search.es;
 import com.scaleset.search.*;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -122,6 +126,29 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
         }
         // recreate mapping
         client.admin().indices().preparePutMapping(index).setType(type).setSource(schema).execute().actionGet();
+    }
+
+    public boolean indexExists(String name) {
+        boolean result = false;
+        try {
+            IndicesExistsResponse exists = client.admin().indices().exists(new IndicesExistsRequest(name)).actionGet();
+            result = exists.isExists();
+        } catch (Exception e) {
+            log.error("Error checking index exists");
+        }
+        return result;
+    }
+
+    public boolean mappingExists(String indexName, String typeName) {
+        boolean result = false;
+        try {
+            String[] indices = new String[]{indexName};
+            TypesExistsResponse exists = client.admin().indices().typesExists(new TypesExistsRequest(indices, typeName)).actionGet();
+            result = exists.isExists();
+        } catch (Exception e) {
+            log.error("Error checking type exists");
+        }
+        return result;
     }
 
 }
