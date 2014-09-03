@@ -10,6 +10,7 @@ public class QueryBuilder {
     private List<Aggregation> aggregations = new ArrayList<>();
     private Envelope bbox;
     private String geoField;
+    private List<Filter> filters = new ArrayList<>();
     private int offset = 0;
     private Integer limit = 10;
     private String q = "";
@@ -94,7 +95,7 @@ public class QueryBuilder {
     }
 
     public Query build() {
-        Query result = new Query(q, bbox, geoField, offset, limit, sorts, aggregations);
+        Query result = new Query(q, bbox, geoField, offset, limit, sorts, aggregations, filters);
         return result;
     }
 
@@ -105,6 +106,15 @@ public class QueryBuilder {
 
     public QueryBuilder echo() {
         this.echo = true;
+        return this;
+    }
+
+    public QueryBuilder filter(Filter... filters) {
+        if (filters != null) {
+            for (Filter filter : filters) {
+                this.filters.add(filter);
+            }
+        }
         return this;
     }
 
