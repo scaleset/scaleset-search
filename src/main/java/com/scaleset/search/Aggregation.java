@@ -1,17 +1,11 @@
 package com.scaleset.search;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.scaleset.utils.Extensible;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class Aggregation {
+public class Aggregation extends Extensible {
 
     private String name;
     private String type;
-
-    // properties not specified as members
-    private Map<String, Object> properties = new HashMap<>();
 
     public Aggregation() {
     }
@@ -28,20 +22,6 @@ public class Aggregation {
 
     public String getType() {
         return type;
-    }
-
-    public String getString(String key) {
-        return (String) properties.get(key);
-    }
-
-    public Integer getInteger(String key) {
-        return ((Integer) properties.get(key));
-    }
-
-    @JsonAnySetter
-    public Aggregation property(String name, Object value) {
-        properties.put(name, value);
-        return this;
     }
 
     public void setType(String type) {

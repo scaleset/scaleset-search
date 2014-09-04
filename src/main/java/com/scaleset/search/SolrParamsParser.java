@@ -1,8 +1,8 @@
 package com.scaleset.search;
 
-import javax.servlet.http.HttpServletRequest;
+import com.scaleset.utils.Coerce;
 
-import static com.scaleset.search.QueryBuilder.toInteger;
+import javax.servlet.http.HttpServletRequest;
 
 public class SolrParamsParser {
 
@@ -16,24 +16,24 @@ public class SolrParamsParser {
     }
 
     void parseFacetMinCount(HttpServletRequest request, Aggregation fb) {
-        int fallback = toInteger(request.getParameter("facet.mincount"), 0);
+        int fallback = Coerce.toInteger(request.getParameter("facet.mincount"), 0);
         String field = fb.getString("field");
-        int minCount = toInteger(request.getParameter("f." + field + ".facet.mincount"), fallback);
-        fb.property("min_doc_count", minCount);
+        int minCount = Coerce.toInteger(request.getParameter("f." + field + ".facet.mincount"), fallback);
+        fb.put("min_doc_count", minCount);
     }
 
     void parseFacetOffset(HttpServletRequest request, Aggregation agg) {
     }
 
     void parseFacetSort(HttpServletRequest request, Aggregation agg) {
-        agg.property("sort", Sort.Type.Lexical);
+        agg.put("sort", Sort.Type.Lexical);
         String field = agg.getString("field");
         String facet_sort = request.getParameter("f." + field + ".facet.sort");
         if (facet_sort == null) {
             facet_sort = request.getParameter("facet.sort");
         }
         if ("count".equals(facet_sort)) {
-            agg.property("sort", Sort.Type.Count);
+            agg.put("sort", Sort.Type.Count);
         }
     }
 
@@ -52,7 +52,7 @@ public class SolrParamsParser {
     Aggregation parseFieldFacet(HttpServletRequest request, String facetField) {
         Aggregation agg = new Aggregation();
         agg.setType("terms");
-        agg.property("field", facetField);
+        agg.put("field", facetField);
         parseFacetSort(request, agg);
         parseFacetMinCount(request, agg);
         parseLimit(request, agg);
@@ -61,10 +61,10 @@ public class SolrParamsParser {
     }
 
     void parsePaging(HttpServletRequest request, QueryBuilder qb) {
-        int limit = toInteger(request.getParameter("rows"), 10);
-        limit = toInteger(request.getParameter("limit"), limit);
-        int offset = toInteger(request.getParameter("start"), 0);
-        offset = toInteger(request.getParameter("offset"), offset);
+        int limit = Coerce.toInteger(request.getParameter("rows"), 10);
+        limit = Coerce.toInteger(request.getParameter("limit"), limit);
+        int offset = Coerce.toInteger(request.getParameter("start"), 0);
+        offset = Coerce.toInteger(request.getParameter("offset"), offset);
         qb.offset(offset);
         qb.limit(limit);
     }

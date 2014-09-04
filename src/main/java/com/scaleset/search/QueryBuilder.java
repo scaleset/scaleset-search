@@ -1,5 +1,6 @@
 package com.scaleset.search;
 
+import com.scaleset.utils.Coerce;
 import com.vividsolutions.jts.geom.Envelope;
 
 import java.util.ArrayList;
@@ -34,28 +35,6 @@ public class QueryBuilder {
         q(q);
     }
 
-    public static Double toDouble(String text, Double fallback) {
-        Double result = fallback;
-        if (text != null) {
-            try {
-                result = Double.valueOf(text);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return fallback;
-    }
-
-    public static Integer toInteger(String text, Integer fallback) {
-        Integer result = fallback;
-        if (text != null) {
-            try {
-                result = Integer.valueOf(text);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return result;
-    }
-
     public QueryBuilder aggregation(Aggregation... aggregations) {
         if (aggregations != null) {
             for (Aggregation aggregation : aggregations) {
@@ -85,7 +64,7 @@ public class QueryBuilder {
             if (parts.length == 4) {
                 double[] coords = new double[4];
                 for (int i = 0; i < 4; ++i) {
-                    coords[i] = toDouble(parts[i], 0.0);
+                    coords[i] = Coerce.toDouble(parts[i], 0.0);
                 }
                 Envelope bbox = new Envelope(coords[0], coords[2], coords[1], coords[3]);
                 bbox(bbox);
