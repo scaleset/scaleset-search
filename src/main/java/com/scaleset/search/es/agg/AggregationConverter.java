@@ -1,4 +1,4 @@
-package com.scaleset.search.es;
+package com.scaleset.search.es.agg;
 
 import com.scaleset.search.Aggregation;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
