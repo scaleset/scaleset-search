@@ -13,6 +13,8 @@ public class Query {
 
     private Envelope bbox;
 
+    private Filter[] filters;
+
     private String geoField;
 
     private int limit;
@@ -27,7 +29,7 @@ public class Query {
     public Query() {
     }
 
-    public Query(String q, Envelope bbox, String geoField, int offset, int limit, List<Sort> sorts, List<Aggregation> aggs) {
+    public Query(String q, Envelope bbox, String geoField, int offset, int limit, List<Sort> sorts, List<Aggregation> aggs, List<Filter> filters) {
         this.q = q;
         this.offset = offset;
         this.limit = limit;
@@ -35,6 +37,7 @@ public class Query {
         this.geoField = geoField;
         this.sorts = sorts.toArray(new Sort[sorts.size()]);
         this.aggs = aggs.toArray(new Aggregation[aggs.size()]);
+        this.filters = filters.toArray(new Filter[filters.size()]);
     }
 
     public Aggregation[] getAggs() {
@@ -43,6 +46,10 @@ public class Query {
 
     public Envelope getBbox() {
         return bbox;
+    }
+
+    public Filter[] getFilters() {
+        return filters;
     }
 
     public String getGeoField() {

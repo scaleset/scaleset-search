@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.scaleset</groupId>
     <artifactId>scaleset-search</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <packaging>jar</packaging>
     <name>scaleset-search</name>
     <description>Java object model for representing query requests in REST protocols.</description>
@@ -54,6 +54,12 @@
 
         <dependency>
             <groupId>com.scaleset</groupId>
+            <artifactId>scaleset-utils</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.scaleset</groupId>
             <artifactId>scaleset-geo</artifactId>
             <version>${scaleset-geo.version}</version>
         </dependency>
@@ -81,7 +87,7 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.0.13</version>
-	    <scope>test</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -92,16 +98,16 @@
         </dependency>
 
         <dependency>
-          <groupId>org.jongo</groupId>
-          <artifactId>jongo</artifactId>
-          <version>1.1</version>
+            <groupId>org.jongo</groupId>
+            <artifactId>jongo</artifactId>
+            <version>1.1</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-          <groupId>org.mongodb</groupId>
-          <artifactId>mongo-java-driver</artifactId>
-          <version>2.12.2</version>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>2.12.2</version>
             <scope>provided</scope>
         </dependency>
 

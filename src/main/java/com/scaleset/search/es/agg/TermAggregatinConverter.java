@@ -1,9 +1,7 @@
-package com.scaleset.search.es;
+package com.scaleset.search.es.agg;
 
 import com.scaleset.search.Aggregation;
-import com.scaleset.search.Sort;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 
 import static org.elasticsearch.search.aggregations.AggregationBuilders.terms;
