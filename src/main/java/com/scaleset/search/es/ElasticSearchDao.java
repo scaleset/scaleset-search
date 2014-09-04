@@ -100,7 +100,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
             String index = mapping.index(entity);
             String type = mapping.type(entity);
             String source = mapping.toDocument(entity);
-            client.prepareIndex(index, type, id).setSource(source).execute().actionGet();
+            bulkRequest.add(client.prepareIndex(index, type, id).setSource(source));
             result.add(entity);
         }
 
