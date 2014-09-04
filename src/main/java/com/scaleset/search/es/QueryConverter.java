@@ -8,6 +8,8 @@ import com.scaleset.search.es.agg.AggregationConverter;
 import com.scaleset.search.es.agg.TermAggregatinConverter;
 import com.scaleset.search.es.filter.FilterConverter;
 import com.scaleset.search.es.filter.GeoDistanceFilterConverter;
+import com.scaleset.search.es.filter.GeoPolygonFilterConverter;
+import com.scaleset.search.es.filter.GeoShapeFilterConverter;
 import com.vividsolutions.jts.geom.Envelope;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -182,6 +184,8 @@ public class QueryConverter {
 
     protected void registerDefaultFilterConverters() {
         register("geo_distance", new GeoDistanceFilterConverter());
+        register("geo_shape", new GeoShapeFilterConverter());
+        register("geo_polygon", new GeoPolygonFilterConverter());
     }
 
 }
