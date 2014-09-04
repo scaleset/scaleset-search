@@ -11,6 +11,9 @@ import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.marshall.jackson.JacksonMapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
 
     private MongoCollection collection;
@@ -37,6 +40,16 @@ public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
     @Override
     public T findById(K id) throws Exception {
         return collection.findOne("_id:#", id).as(typeClass);
+    }
+
+    @Override
+    public List<T> saveBatch(List<T> entities) throws Exception {
+        List<T> results = new ArrayList<>();
+        for (T entity : entities) {
+            save(entity);
+            results.add(entity);
+        }
+        return results;
     }
 
 }

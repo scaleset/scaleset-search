@@ -7,6 +7,8 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -15,6 +17,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.elasticsearch.client.Requests.createIndexRequest;
 import static org.elasticsearch.client.Requests.deleteIndexRequest;
@@ -83,6 +88,26 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
         String source = mapping.toDocument(entity);
         client.prepareIndex(index, type, id).setSource(source).execute().actionGet();
         T result = entity;
+        return result;
+    }
+
+    public List<T> saveBatch(List<T> entities) throws Exception {
+        List<T> result = new ArrayList<>();
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
+
+        for (T entity : entities) {
+            String id = mapping.id(entity);
+            String index = mapping.index(entity);
+            String type = mapping.type(entity);
+            String source = mapping.toDocument(entity);
+            client.prepareIndex(index, type, id).setSource(source).execute().actionGet();
+            result.add(entity);
+        }
+
+        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+        if (bulkResponse.hasFailures()) {
+            log.error("Bulk ingest has errors");
+        }
         return result;
     }
 
