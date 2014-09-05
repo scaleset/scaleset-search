@@ -58,9 +58,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
 
     @Override
     public void deleteByQuery(Query query) throws Exception {
-        String index = mapping.indexForQuery(query);
-        String type = mapping.typeForQuery(query);
-        DeleteByQueryRequestBuilder builder = new QueryConverter(client, query, index, type).deleteRequest();
+        DeleteByQueryRequestBuilder builder = createConverter(query).deleteRequest();
         DeleteByQueryResponse response = builder.execute().actionGet();
     }
 
@@ -126,9 +124,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
 
 
     public SearchRequestBuilder convert(Query query) throws Exception {
-        String index = mapping.indexForQuery(query);
-        String type = mapping.typeForQuery(query);
-        return new QueryConverter(client, query, index, type).searchRequest();
+        return createConverter(query).searchRequest();
     }
 
     /**
@@ -179,6 +175,16 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
             log.error("Error checking type exists");
         }
         return result;
+    }
+
+    protected SearchMapping<T, K> getMapping() {
+        return mapping;
+    }
+
+    protected QueryConverter createConverter(Query query) throws Exception {
+        String index = mapping.indexForQuery(query);
+        String type = mapping.typeForQuery(query);
+        return new QueryConverter(client, query, index, type);
     }
 
 }
