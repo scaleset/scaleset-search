@@ -85,10 +85,13 @@ public class SolrParamsParser {
                 } else if (sort_parts.length == 2) {
                     String field = sort_parts[0].trim();
                     if (!field.isEmpty()) {
-                        qb.sort(sort_parts[0]);
+                    	if (!sort_parts[1].isEmpty()) {
+	                    	Sort.Direction direction = "asc".equals(sort_parts[1]) ? Sort.Direction.Ascending : Sort.Direction.Descending;
+	                        qb.sort(new Sort(field, direction));
+                    	} else {
+                    		qb.sort(sort_parts[0]);
+                    	}
                     }
-                    Sort.Direction direction = "asc".equals(sort_parts[1]) ? Sort.Direction.Ascending : Sort.Direction.Descending;
-                    qb.sort(new Sort(field, direction));
                 }
             }
         }
