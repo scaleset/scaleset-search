@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface GenericSearchDao<T, KEY> {
 
+    void close() throws Exception;
+
     void delete(T entity) throws Exception;
 
     void deleteByKey(KEY id) throws Exception;

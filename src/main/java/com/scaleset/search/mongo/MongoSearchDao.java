@@ -28,6 +28,10 @@ public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
     }
 
     @Override
+    public void close() throws Exception {
+    }
+
+    @Override
     public Results<T> search(Query query) throws Exception {
         Find find = collection
                 .find(query.getQ())

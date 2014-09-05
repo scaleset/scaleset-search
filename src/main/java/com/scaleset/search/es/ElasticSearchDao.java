@@ -36,6 +36,11 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     }
 
     @Override
+    public void close() throws Exception {
+        client.close();
+    }
+
+    @Override
     public void delete(T entity) throws Exception {
         String index = mapping.index(entity);
         String type = mapping.type(entity);
