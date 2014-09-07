@@ -14,7 +14,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.ExtendedStats;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ResultsConverter<T, K> {
 
@@ -22,7 +24,7 @@ public class ResultsConverter<T, K> {
     private SearchResponse response;
     private int totalItems;
     private List<T> items = new ArrayList<>();
-    private List<AggregationResults> facets = new ArrayList<>();
+    private Map<String, AggregationResults> facets = new HashMap<>();
     private SearchHits hits;
     private SearchMapping<T, K> mapping;
 
@@ -38,12 +40,12 @@ public class ResultsConverter<T, K> {
             // TODO - Might need to change this to use getKeyAsNumber
             buckets.add(new Bucket(entry.getKey(), entry.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        facets.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     private void addExtendedStats(ExtendedStats agg) {
         Stats stats = new Stats(agg.getCount(), agg.getSum(), agg.getMin(), agg.getMax(), agg.getAvg(), agg.getSumOfSquares(), agg.getVariance(), agg.getStdDeviation());
-        facets.add(new AggregationResults(agg.getName(), null, stats));
+        facets.put(agg.getName(), new AggregationResults(agg.getName(), null, stats));
     }
 
     protected void addFacets() {
@@ -74,7 +76,7 @@ public class ResultsConverter<T, K> {
         for (Histogram.Bucket bucket : agg.getBuckets()) {
             buckets.add(new Bucket(bucket.getKey(), bucket.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        facets.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     protected void addItems() throws Exception {
@@ -91,7 +93,7 @@ public class ResultsConverter<T, K> {
     protected void addQuery(Filter agg) {
         List<Bucket> buckets = new ArrayList<>();
         buckets.add(new Bucket(agg.getName(), agg.getDocCount()));
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        facets.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     protected void addRange(Range agg) {
@@ -100,12 +102,12 @@ public class ResultsConverter<T, K> {
             String label = bucket.getKeyAsText() + " TO " + bucket.getKeyAsText();
             buckets.add(new Bucket(label, bucket.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        facets.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     private void addStats(org.elasticsearch.search.aggregations.metrics.stats.Stats agg) {
         Stats stats = new Stats(agg.getCount(), agg.getSum(), agg.getMin(), agg.getMax(), agg.getAvg());
-        facets.add(new AggregationResults(agg.getName(), null, stats));
+        facets.put(agg.getName(), new AggregationResults(agg.getName(), null, stats));
     }
 
     protected void addTerms(Terms agg) {
@@ -113,7 +115,7 @@ public class ResultsConverter<T, K> {
         for (Terms.Bucket bucket : agg.getBuckets()) {
             buckets.add(new Bucket(bucket.getKey(), bucket.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        facets.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     public Results<T> convert() throws Exception {

@@ -8,7 +8,9 @@ import org.jongo.MongoCursor;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ResultsConverter<T, K> {
 
@@ -16,7 +18,7 @@ public class ResultsConverter<T, K> {
     private Find find;
     private int totalItems;
     private List<T> items = new ArrayList<>();
-    private List<AggregationResults> aggregationResults = new ArrayList<>();
+    private Map<String, AggregationResults> aggregationResults = new HashMap<>();
     private Class<T> typeClass;
 
     public ResultsConverter(Query query, Find find, Class<T> typeClass) {

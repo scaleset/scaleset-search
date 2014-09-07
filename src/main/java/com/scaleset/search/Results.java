@@ -5,13 +5,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.vividsolutions.jts.geom.Envelope;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @JsonPropertyOrder({"query", "totalItems", "aggregations", "items"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Results<T> {
 
-    private List<AggregationResults> aggs = new ArrayList<>();
+    private Map<String, AggregationResults> aggs = new HashMap<>();
     private List<T> items = new ArrayList<>();
     private Query query;
     private Integer totalItems = 0;
@@ -21,14 +23,14 @@ public class Results<T> {
     protected Results() {
     }
 
-    public Results(Query query, List<AggregationResults> aggs, List<T> items, Integer totalItems) {
+    public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems) {
         this(query, aggs, items, totalItems, null);
     }
 
-    public Results(Query query, List<AggregationResults> aggs, List<T> items, Integer totalItems, Envelope bbox) {
+    public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems, Envelope bbox) {
         this.query = query;
         if (aggs != null) {
-            this.aggs.addAll(aggs);
+            this.aggs.putAll(aggs);
         }
         this.items.addAll(items);
         this.totalItems = totalItems;
@@ -45,15 +47,10 @@ public class Results<T> {
     }
 
     public AggregationResults getAgg(String name) {
-        for (AggregationResults agg : aggs) {
-            if (name.equals(agg.getName())) {
-                return agg;
-            }
-        }
-        return null;
+        return aggs.get(name);
     }
 
-    public List<AggregationResults> getAggs() {
+    public Map<String, AggregationResults> getAggs() {
         return aggs;
     }
 

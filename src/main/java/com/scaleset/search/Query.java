@@ -4,16 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.vividsolutions.jts.geom.Envelope;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @JsonInclude(Include.NON_EMPTY)
 public class Query {
 
-    private Aggregation[] aggs;
+    private HashMap<String, Aggregation> aggs = new HashMap<>();
 
     private Envelope bbox;
 
-    private Filter[] filters;
+    private Map<String, Filter> filters = new HashMap<>();
 
     private String geoField;
 
@@ -29,18 +31,22 @@ public class Query {
     public Query() {
     }
 
-    public Query(String q, Envelope bbox, String geoField, int offset, int limit, List<Sort> sorts, List<Aggregation> aggs, List<Filter> filters) {
+    public Query(String q, Envelope bbox, String geoField, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters) {
         this.q = q;
         this.offset = offset;
         this.limit = limit;
         this.bbox = bbox;
         this.geoField = geoField;
         this.sorts = sorts.toArray(new Sort[sorts.size()]);
-        this.aggs = aggs.toArray(new Aggregation[aggs.size()]);
-        this.filters = filters.toArray(new Filter[filters.size()]);
+        if (aggs != null) {
+            this.aggs.putAll(aggs);
+        }
+        if (filters != null) {
+            this.filters.putAll(filters);
+        }
     }
 
-    public Aggregation[] getAggs() {
+    public Map<String, Aggregation> getAggs() {
         return aggs;
     }
 
@@ -48,7 +54,7 @@ public class Query {
         return bbox;
     }
 
-    public Filter[] getFilters() {
+    public Map<String, Filter> getFilters() {
         return filters;
     }
 

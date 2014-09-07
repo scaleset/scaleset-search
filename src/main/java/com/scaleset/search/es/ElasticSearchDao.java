@@ -122,7 +122,6 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
         return results;
     }
 
-
     public SearchRequestBuilder convert(Query query) throws Exception {
         return createConverter(query).searchRequest();
     }

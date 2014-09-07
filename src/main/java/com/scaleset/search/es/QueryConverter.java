@@ -55,9 +55,9 @@ public class QueryConverter {
     }
 
     protected void addAggregations(SearchRequestBuilder builder) {
-        Aggregation[] aggs = query.getAggs();
+        Map<String, Aggregation> aggs = query.getAggs();
         if (aggs != null) {
-            for (Aggregation agg : aggs) {
+            for (Aggregation agg : aggs.values()) {
                 String type = agg.getType();
                 AggregationConverter converter = converters.get(type);
                 if (converter != null) {
@@ -69,9 +69,9 @@ public class QueryConverter {
     }
 
     protected void addFilters(BoolFilterBuilder boolFilter) {
-        Filter[] filters = query.getFilters();
+        Map<String, Filter> filters = query.getFilters();
         if (filters != null) {
-            for (Filter filter : filters) {
+            for (Filter filter : filters.values()) {
                 String type = filter.getType();
                 FilterConverter converter = filterConverters.get(type);
                 if (converter != null) {
