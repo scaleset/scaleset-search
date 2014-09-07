@@ -39,9 +39,16 @@ public class Query {
         this.geoField = geoField;
         this.sorts = sorts.toArray(new Sort[sorts.size()]);
         if (aggs != null) {
-            this.aggs.putAll(aggs);
+            for (String name : aggs.keySet()) {
+                Aggregation agg = aggs.get(name);
+                this.aggs.put(name, new Aggregation(name, agg.getType(), agg.anyGetter()));
+            }
         }
         if (filters != null) {
+            for (String name : filters.keySet()) {
+                Filter filter = filters.get(name);
+                this.filters.put(name, new Filter(name, filter.getType(), filter.anyGetter()));
+            }
             this.filters.putAll(filters);
         }
     }

@@ -115,7 +115,8 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     }
 
     public Results<T> search(Query query) throws Exception {
-        SearchRequestBuilder srb = convert(query);
+        Query updated = new QueryBuilder(query).build();
+        SearchRequestBuilder srb = convert(updated);
         SearchResponse response = srb.execute().actionGet();
         Results<T> results = new ResultsConverter<T, K>(query, response, mapping).convert();
 

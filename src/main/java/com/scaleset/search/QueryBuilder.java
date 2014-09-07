@@ -28,7 +28,8 @@ public class QueryBuilder {
             this.q = prototype.getQ();
             this.offset = prototype.getOffset();
             this.limit = prototype.getLimit();
-            this.aggregations(prototype.getAggs().values());
+            this.aggregations(prototype.getAggs());
+            this.filters(prototype.getFilters());
             this.sort(prototype.getSorts());
         }
     }
@@ -37,11 +38,26 @@ public class QueryBuilder {
         q(q);
     }
 
+
     public QueryBuilder aggregation(Aggregation... aggregations) {
         if (aggregations != null) {
             for (Aggregation aggregation : aggregations) {
                 this.aggregations.put(aggregation.getName(), aggregation);
             }
+        }
+        return this;
+    }
+
+    protected QueryBuilder aggregations(Map<String, Aggregation> aggs) {
+        for (String name : aggs.keySet()) {
+            this.aggregations.put(name, aggs.get(name));
+        }
+        return this;
+    }
+
+    protected QueryBuilder filters(Map<String, Filter> filters) {
+        for (String name : filters.keySet()) {
+            this.filters.put(name, filters.get(name));
         }
         return this;
     }

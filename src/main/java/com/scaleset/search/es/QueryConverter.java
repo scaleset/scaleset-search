@@ -57,7 +57,8 @@ public class QueryConverter {
     protected void addAggregations(SearchRequestBuilder builder) {
         Map<String, Aggregation> aggs = query.getAggs();
         if (aggs != null) {
-            for (Aggregation agg : aggs.values()) {
+            for (String name : aggs.keySet()) {
+                Aggregation agg = aggs.get(name);
                 String type = agg.getType();
                 AggregationConverter converter = converters.get(type);
                 if (converter != null) {
