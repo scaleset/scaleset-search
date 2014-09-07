@@ -5,7 +5,7 @@ import com.scaleset.search.Filter;
 import com.scaleset.search.Query;
 import com.scaleset.search.Sort;
 import com.scaleset.search.es.agg.AggregationConverter;
-import com.scaleset.search.es.agg.TermAggregatinConverter;
+import com.scaleset.search.es.agg.TermAggregationConverter;
 import com.scaleset.search.es.filter.FilterConverter;
 import com.scaleset.search.es.filter.GeoDistanceFilterConverter;
 import com.scaleset.search.es.filter.GeoPolygonFilterConverter;
@@ -32,12 +32,10 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class QueryConverter {
 
-    //private SearchRequestBuilder builder;
     private Client client;
     private String index;
     private String type;
     private Query query;
-    //private BoolFilterBuilder boolFilter = boolFilter();
     private Map<String, AggregationConverter> converters = new HashMap<>();
     private Map<String, FilterConverter> filterConverters = new HashMap<>();
 
@@ -180,7 +178,7 @@ public class QueryConverter {
     }
 
     protected void registerDefaultConverters() {
-        register("terms", new TermAggregatinConverter());
+        register("terms", new TermAggregationConverter());
     }
 
     protected void registerDefaultFilterConverters() {

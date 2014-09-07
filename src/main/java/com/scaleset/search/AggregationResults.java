@@ -1,11 +1,13 @@
 package com.scaleset.search;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"name", "buckets", "stats"})
 public class AggregationResults {
 
     private List<Bucket> buckets = new ArrayList<Bucket>();

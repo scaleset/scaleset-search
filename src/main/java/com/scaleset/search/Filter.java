@@ -1,5 +1,6 @@
 package com.scaleset.search;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scaleset.geo.geojson.GeoJsonModule;
 import com.scaleset.utils.Coerce;
@@ -7,6 +8,7 @@ import com.scaleset.utils.Extensible;
 
 import java.util.Map;
 
+@JsonPropertyOrder({"type", "name"})
 public class Filter extends Extensible {
 
     private String name;
