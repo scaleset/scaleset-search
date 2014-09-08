@@ -2,9 +2,10 @@ package com.scaleset.search;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.scaleset.utils.Extensible;
 
 @JsonInclude(Include.NON_EMPTY)
-public final class Bucket  {
+public final class Bucket extends Extensible {
 
     public long count;
     public String label;
