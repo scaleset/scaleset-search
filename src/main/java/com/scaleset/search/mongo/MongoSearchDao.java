@@ -1,5 +1,6 @@
 package com.scaleset.search.mongo;
 
+import com.fasterxml.jackson.databind.Module;
 import com.mongodb.DB;
 import com.scaleset.geo.geojson.GeoJsonModule;
 import com.scaleset.search.AbstractSearchDao;
@@ -19,9 +20,13 @@ public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
     private MongoCollection collection;
     private Class<T> typeClass;
 
-    public MongoSearchDao(DB db, String collectionName, Class<T> typeClass) {
+    public MongoSearchDao(DB db, String collectionName, Class<T> typeClass, Module... modules) {
         this.typeClass = typeClass;
-        JacksonMapper.Builder mapperBuilder = new JacksonMapper.Builder().registerModule(new GeoJsonModule());
+        JacksonMapper.Builder mapperBuilder = new JacksonMapper.Builder();
+        mapperBuilder.registerModule(new GeoJsonModule());
+        for (Module module : modules) {
+            mapperBuilder.registerModule(module);
+        }
         mapperBuilder.withQueryFactory(new LuceneJongoQueryFactory());
         Jongo jongo = new Jongo(db, mapperBuilder.build());
         collection = jongo.getCollection(collectionName);
