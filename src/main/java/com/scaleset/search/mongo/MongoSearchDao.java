@@ -56,4 +56,25 @@ public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
         return results;
     }
 
+    @Override
+    public void delete(T entity) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteByKey(K id) throws Exception {
+        collection.remove("_id: #", id);
+    }
+
+    @Override
+    public void deleteByQuery(Query query) throws Exception {
+        collection.remove(query.getQ());
+    }
+
+    @Override
+    public T save(T entity) throws Exception {
+        collection.save(entity);
+        return entity;
+    }
+
 }
