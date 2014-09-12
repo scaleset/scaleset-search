@@ -7,6 +7,7 @@ import com.scaleset.search.es.agg.TermAggregationConverter;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
@@ -79,15 +80,30 @@ public class ResultsConverter<T, K> {
     protected void addAggregations() {
         for (String name : query.getAggs().keySet()) {
             Aggregation agg = query.getAggs().get(name);
-            String type = agg.getType();
-            AggregationResultsConverter converter = aggConverters.get(type);
-            if (converter != null) {
-                AggregationResults result = converter.convertResult(agg, response);
-                if (result != null) {
-                    aggs.put(name, result);
-                }
+            addAggregationResults(agg);
+        }
+    }
+
+    protected void addAggregationResults(Aggregation agg) {
+        String type = agg.getType();
+        String name = agg.getName();
+        AggregationResultsConverter converter = aggConverters.get(type);
+        if (converter != null) {
+            AggregationResults results = convertResults(agg, response.getAggregations());
+            if (results != null) {
+                aggs.put(name, results);
             }
         }
+    }
+
+    public AggregationResults convertResults(Aggregation agg, Aggregations aggs) {
+        AggregationResults results = null;
+        String type = agg.getType();
+        AggregationResultsConverter converter = aggConverters.get(type);
+        if (converter != null) {
+            results = converter.convertResult(this, agg, aggs);
+        }
+        return results;
     }
 
     protected void addHistogram(Histogram agg) {

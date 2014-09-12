@@ -3,8 +3,12 @@ package com.scaleset.search.es.agg;
 import com.scaleset.search.Aggregation;
 import com.scaleset.search.AggregationResults;
 import com.scaleset.search.Bucket;
+import com.scaleset.search.es.QueryConverter;
+import com.scaleset.search.es.ResultsConverter;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 
@@ -13,10 +17,10 @@ import java.util.List;
 
 import static org.elasticsearch.search.aggregations.AggregationBuilders.terms;
 
-public class TermAggregationConverter implements AggregationConverter, AggregationResultsConverter {
+public class TermAggregationConverter extends AbstractCombinedConverter {
 
     @Override
-    public AbstractAggregationBuilder convert(Aggregation aggregation) {
+    public AggregationBuilder convert(QueryConverter queryConverter, Aggregation aggregation) {
 
         /*
         Terms.Order order = Terms.Order.count(false);
@@ -30,40 +34,41 @@ public class TermAggregationConverter implements AggregationConverter, Aggregati
             }
         }
         */
-        String name = aggregation.getName();
-        String field = aggregation.getString("field");
-        String script = aggregation.getString("script");
+
+        TermsBuilder result = terms(getName(aggregation));
+
+        addField(aggregation, result);
+        addScript(aggregation, result);
+
         Integer limit = aggregation.getInteger("limit");
-
-        if (name == null) {
-            name = field;
-        }
-
-        TermsBuilder result = terms(name);
-        result.field(field);
-        if (script != null) {
-            result.script(script);
-        }
         if (limit != null) {
             result.size(limit);
         }
-        // todo - process subaggs;
         // todo - add ordering
+
+        addSubAggs(queryConverter, aggregation, result);
         return result;
     }
 
     @Override
-    public AggregationResults convertResult(Aggregation aggregation, SearchResponse response) {
-        String name = aggregation.getName();
-        org.elasticsearch.search.aggregations.Aggregation agg = response.getAggregations().get(name);
+    public AggregationResults convertResult(ResultsConverter resultsConverter, Aggregation aggregation, Aggregations aggs) {
         AggregationResults result = null;
-        if (agg instanceof Terms) {
-            Terms terms = (Terms) agg;
+
+        String name = aggregation.getName();
+        if (aggs.get(name) instanceof Terms) {
+            Terms terms = (Terms) aggs.get(name);
             List<Bucket> buckets = new ArrayList<>();
             for (Terms.Bucket bucket : terms.getBuckets()) {
-                buckets.add(new Bucket(bucket.getKey(), bucket.getDocCount()));
+                Bucket b = new Bucket(bucket.getKey(), bucket.getDocCount());
+                buckets.add(b);
+                for (Aggregation subAgg : aggregation.getAggs().values()) {
+                    AggregationResults subResults = resultsConverter.convertResults(subAgg, bucket.getAggregations());
+                    if (subResults != null) {
+                        b.getAggs().put(subAgg.getName(), subResults);
+                    }
+                }
             }
-            result = new AggregationResults(agg.getName(), buckets);
+            result = new AggregationResults(name, buckets);
         }
         return result;
     }

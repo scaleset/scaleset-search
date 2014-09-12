@@ -9,11 +9,11 @@ Quick Start
 
 ### Dependency
 
-```java
+```xml
 <dependency>
     <groupId>com.scaleset</groupId>
     <artifactId>scaleset-search</artifactId>
-    <version>0.3.0</version>
+    <version>0.5.0</version>
 </dependency>
 ```
 

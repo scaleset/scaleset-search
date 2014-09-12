@@ -41,7 +41,7 @@ public class Query {
         if (aggs != null) {
             for (String name : aggs.keySet()) {
                 Aggregation agg = aggs.get(name);
-                this.aggs.put(name, new Aggregation(name, agg.getType(), agg.anyGetter()));
+                this.aggs.put(name, new Aggregation(name, agg.getType(), agg.anyGetter(), agg.getAggs()));
             }
         }
         if (filters != null) {
