@@ -1,5 +1,7 @@
 package com.scaleset.search.es;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scaleset.geo.geojson.GeoJsonModule;
 import com.scaleset.search.Query;
@@ -7,18 +9,24 @@ import com.scaleset.search.Query;
 public abstract class AbstractSearchMapping<T, K> implements SearchMapping<T, K> {
 
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new GeoJsonModule());
-    private Class<? extends T> type;
+    private JavaType javaType;
     private String defaultIndex;
     private String defaultType;
 
     public AbstractSearchMapping(Class<? extends T> type, String defaultIndex, String defaultType) {
-        this.type = type;
+        this.javaType = objectMapper.getTypeFactory().constructType(type);
+        this.defaultIndex = defaultIndex;
+        this.defaultType = defaultType;
+    }
+
+    public AbstractSearchMapping(TypeReference typeReference, String defaultIndex, String defaultType) {
+        this.javaType = objectMapper.getTypeFactory().constructType(typeReference);
         this.defaultIndex = defaultIndex;
         this.defaultType = defaultType;
     }
 
     public T fromDocument(String id, String doc) throws Exception {
-        T obj = objectMapper.readValue(doc, type);
+        T obj = objectMapper.readValue(doc, javaType);
         return obj;
     }
 
