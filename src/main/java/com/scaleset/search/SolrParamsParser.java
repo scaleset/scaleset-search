@@ -50,8 +50,7 @@ public class SolrParamsParser {
     }
 
     Aggregation parseFieldFacet(HttpServletRequest request, String facetField) {
-        Aggregation agg = new Aggregation();
-        agg.setType("terms");
+        Aggregation agg = new Aggregation(facetField, "terms");
         agg.put("field", facetField);
         parseFacetSort(request, agg);
         parseFacetMinCount(request, agg);
@@ -85,12 +84,12 @@ public class SolrParamsParser {
                 } else if (sort_parts.length == 2) {
                     String field = sort_parts[0].trim();
                     if (!field.isEmpty()) {
-                    	if (!sort_parts[1].isEmpty()) {
-	                    	Sort.Direction direction = "asc".equals(sort_parts[1]) ? Sort.Direction.Ascending : Sort.Direction.Descending;
-	                        qb.sort(new Sort(field, direction));
-                    	} else {
-                    		qb.sort(sort_parts[0]);
-                    	}
+                        if (!sort_parts[1].isEmpty()) {
+                            Sort.Direction direction = "asc".equals(sort_parts[1]) ? Sort.Direction.Ascending : Sort.Direction.Descending;
+                            qb.sort(new Sort(field, direction));
+                        } else {
+                            qb.sort(sort_parts[0]);
+                        }
                     }
                 }
             }

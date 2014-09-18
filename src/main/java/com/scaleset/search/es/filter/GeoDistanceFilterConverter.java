@@ -15,7 +15,7 @@ public class GeoDistanceFilterConverter implements FilterConverter {
 
     @Override
     public FilterBuilder convert(Filter filter) {
-        String field = filter.getString("field") + ".coordinates";
+        String field = filter.getString("field");
         String distance = filter.getString("distance");
         Geometry geometry = filter.get(Geometry.class, "geometry");
         Coordinate coord = geometry.getCentroid().getCoordinate();

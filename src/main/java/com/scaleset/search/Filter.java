@@ -40,6 +40,9 @@ public class Filter extends Extensible {
         return type;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setType(String type) {
         this.type = type;
