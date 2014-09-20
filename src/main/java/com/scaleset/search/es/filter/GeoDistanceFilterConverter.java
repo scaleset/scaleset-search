@@ -21,7 +21,8 @@ public class GeoDistanceFilterConverter implements FilterConverter {
         Coordinate coord = geometry.getCentroid().getCoordinate();
         FilterBuilder result = FilterBuilders.geoDistanceFilter(field)
                 .lon(coord.x).lat(coord.y)
-                .distance(distance);
+                .distance(distance)
+                .optimizeBbox("indexed");
         return result;
     }
 
