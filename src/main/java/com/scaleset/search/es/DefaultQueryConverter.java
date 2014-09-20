@@ -107,7 +107,9 @@ public class DefaultQueryConverter implements QueryConverter {
 
     protected void addPaging(SearchRequestBuilder builder) {
         int limit = query.getLimit();
+        int offset = query.getOffset();
         builder.setSize(limit);
+        builder.setFrom(offset);
     }
 
     protected void addQ(SearchRequestBuilder builder, BoolFilterBuilder boolFilter) {
