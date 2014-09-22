@@ -7,6 +7,8 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -15,6 +17,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.elasticsearch.client.Requests.createIndexRequest;
 import static org.elasticsearch.client.Requests.deleteIndexRequest;
@@ -28,6 +33,11 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     public ElasticSearchDao(Client client, SearchMapping<T, K> mapping) {
         this.client = client;
         this.mapping = mapping;
+    }
+
+    @Override
+    public void close() throws Exception {
+        client.close();
     }
 
     @Override
@@ -48,9 +58,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
 
     @Override
     public void deleteByQuery(Query query) throws Exception {
-        String index = mapping.indexForQuery(query);
-        String type = mapping.typeForQuery(query);
-        DeleteByQueryRequestBuilder builder = new QueryConverter(client, query, index, type).deleteRequest();
+        DeleteByQueryRequestBuilder builder = createConverter(query).deleteRequest();
         DeleteByQueryResponse response = builder.execute().actionGet();
     }
 
@@ -86,19 +94,36 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
         return result;
     }
 
-    public Results<T> search(Query query) throws Exception {
-        SearchRequestBuilder srb = convert(query);
-        SearchResponse response = srb.execute().actionGet();
-        Results<T> results = new ResultsConverter<T, K>(query, response, mapping).convert();
+    public List<T> saveBatch(List<T> entities) throws Exception {
+        List<T> result = new ArrayList<>();
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
 
+        for (T entity : entities) {
+            String id = mapping.id(entity);
+            String index = mapping.index(entity);
+            String type = mapping.type(entity);
+            String source = mapping.toDocument(entity);
+            bulkRequest.add(client.prepareIndex(index, type, id).setSource(source));
+            result.add(entity);
+        }
+
+        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+        if (bulkResponse.hasFailures()) {
+            log.error("Bulk ingest has errors");
+        }
+        return result;
+    }
+
+    public Results<T> search(Query query) throws Exception {
+        Query updated = new QueryBuilder(query).build();
+        SearchRequestBuilder srb = convert(updated);
+        SearchResponse response = srb.execute().actionGet();
+        Results<T> results = createResultsConverter(updated, response, mapping).convert();
         return results;
     }
 
-
     public SearchRequestBuilder convert(Query query) throws Exception {
-        String index = mapping.indexForQuery(query);
-        String type = mapping.typeForQuery(query);
-        return new QueryConverter(client, query, index, type).searchRequest();
+        return createConverter(query).searchRequest();
     }
 
     /**
@@ -149,6 +174,20 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
             log.error("Error checking type exists");
         }
         return result;
+    }
+
+    protected SearchMapping<T, K> getMapping() {
+        return mapping;
+    }
+
+    protected DefaultQueryConverter createConverter(Query query) throws Exception {
+        String index = mapping.indexForQuery(query);
+        String type = mapping.typeForQuery(query);
+        return new DefaultQueryConverter(client, query, index, type);
+    }
+
+    protected ResultsConverter<T, K> createResultsConverter(Query query, SearchResponse response, SearchMapping<T, K> mapping) throws Exception {
+        return new ResultsConverter<T, K>(query, response, mapping);
     }
 
 }

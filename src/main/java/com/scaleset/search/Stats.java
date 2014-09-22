@@ -1,6 +1,8 @@
 package com.scaleset.search;
 
-public class Stats {
+import com.scaleset.utils.Extensible;
+
+public class Stats extends Extensible {
 
     private Long count;
     private Double sum;

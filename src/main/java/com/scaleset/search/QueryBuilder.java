@@ -4,14 +4,16 @@ import com.scaleset.utils.Coerce;
 import com.vividsolutions.jts.geom.Envelope;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class QueryBuilder {
 
-    private List<Aggregation> aggregations = new ArrayList<>();
+    private Map<String, Aggregation> aggregations = new HashMap<>();
     private Envelope bbox;
     private String geoField;
-    private List<Filter> filters = new ArrayList<>();
+    private Map<String, Filter> filters = new HashMap<>();
     private int offset = 0;
     private Integer limit = 10;
     private String q = "";
@@ -26,7 +28,8 @@ public class QueryBuilder {
             this.q = prototype.getQ();
             this.offset = prototype.getOffset();
             this.limit = prototype.getLimit();
-            this.aggregation(prototype.getAggs());
+            this.aggregations(prototype.getAggs());
+            this.filters(prototype.getFilters());
             this.sort(prototype.getSorts());
         }
     }
@@ -35,11 +38,26 @@ public class QueryBuilder {
         q(q);
     }
 
+
     public QueryBuilder aggregation(Aggregation... aggregations) {
         if (aggregations != null) {
             for (Aggregation aggregation : aggregations) {
-                this.aggregations.add(aggregation);
+                this.aggregations.put(aggregation.getName(), aggregation);
             }
+        }
+        return this;
+    }
+
+    protected QueryBuilder aggregations(Map<String, Aggregation> aggs) {
+        for (String name : aggs.keySet()) {
+            this.aggregations.put(name, aggs.get(name));
+        }
+        return this;
+    }
+
+    protected QueryBuilder filters(Map<String, Filter> filters) {
+        for (String name : filters.keySet()) {
+            this.filters.put(name, filters.get(name));
         }
         return this;
     }
@@ -47,7 +65,7 @@ public class QueryBuilder {
     public QueryBuilder aggregations(Iterable<Aggregation> aggs) {
         if (aggs != null) {
             for (Aggregation aggregation : aggs) {
-                this.aggregations.add(aggregation);
+                this.aggregations.put(aggregation.getName(), aggregation);
             }
         }
         return this;
@@ -91,7 +109,7 @@ public class QueryBuilder {
     public QueryBuilder filter(Filter... filters) {
         if (filters != null) {
             for (Filter filter : filters) {
-                this.filters.add(filter);
+                this.filters.put(filter.getName(), filter);
             }
         }
         return this;

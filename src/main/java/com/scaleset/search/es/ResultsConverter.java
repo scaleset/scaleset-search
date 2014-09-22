@@ -1,10 +1,12 @@
 package com.scaleset.search.es;
 
 import com.scaleset.search.*;
+import com.scaleset.search.es.agg.AggregationConverter;
+import com.scaleset.search.es.agg.AggregationResultsConverter;
+import com.scaleset.search.es.agg.TermAggregationConverter;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
@@ -14,7 +16,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.ExtendedStats;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ResultsConverter<T, K> {
 
@@ -22,14 +26,16 @@ public class ResultsConverter<T, K> {
     private SearchResponse response;
     private int totalItems;
     private List<T> items = new ArrayList<>();
-    private List<AggregationResults> facets = new ArrayList<>();
+    private Map<String, AggregationResults> aggs = new HashMap<>();
     private SearchHits hits;
     private SearchMapping<T, K> mapping;
+    private Map<String, AggregationResultsConverter> aggConverters = new HashMap<>();
 
     public ResultsConverter(Query query, SearchResponse response, SearchMapping<T, K> mapping) {
         this.query = query;
         this.response = response;
         this.mapping = mapping;
+        registerDefaultConverters();
     }
 
     protected void addDateHistogram(DateHistogram agg) {
@@ -38,14 +44,15 @@ public class ResultsConverter<T, K> {
             // TODO - Might need to change this to use getKeyAsNumber
             buckets.add(new Bucket(entry.getKey(), entry.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        aggs.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     private void addExtendedStats(ExtendedStats agg) {
         Stats stats = new Stats(agg.getCount(), agg.getSum(), agg.getMin(), agg.getMax(), agg.getAvg(), agg.getSumOfSquares(), agg.getVariance(), agg.getStdDeviation());
-        facets.add(new AggregationResults(agg.getName(), null, stats));
+        aggs.put(agg.getName(), new AggregationResults(agg.getName(), null, stats));
     }
 
+    /*
     protected void addFacets() {
         Aggregations aggs = response.getAggregations();
         if (aggs != null) {
@@ -68,13 +75,43 @@ public class ResultsConverter<T, K> {
             }
         }
     }
+    */
+
+    protected void addAggregations() {
+        for (String name : query.getAggs().keySet()) {
+            Aggregation agg = query.getAggs().get(name);
+            addAggregationResults(agg);
+        }
+    }
+
+    protected void addAggregationResults(Aggregation agg) {
+        String type = agg.getType();
+        String name = agg.getName();
+        AggregationResultsConverter converter = aggConverters.get(type);
+        if (converter != null) {
+            AggregationResults results = convertResults(agg, response.getAggregations());
+            if (results != null) {
+                aggs.put(name, results);
+            }
+        }
+    }
+
+    public AggregationResults convertResults(Aggregation agg, Aggregations aggs) {
+        AggregationResults results = null;
+        String type = agg.getType();
+        AggregationResultsConverter converter = aggConverters.get(type);
+        if (converter != null) {
+            results = converter.convertResult(this, agg, aggs);
+        }
+        return results;
+    }
 
     protected void addHistogram(Histogram agg) {
         List<Bucket> buckets = new ArrayList<>();
         for (Histogram.Bucket bucket : agg.getBuckets()) {
             buckets.add(new Bucket(bucket.getKey(), bucket.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        aggs.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     protected void addItems() throws Exception {
@@ -91,7 +128,7 @@ public class ResultsConverter<T, K> {
     protected void addQuery(Filter agg) {
         List<Bucket> buckets = new ArrayList<>();
         buckets.add(new Bucket(agg.getName(), agg.getDocCount()));
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        aggs.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     protected void addRange(Range agg) {
@@ -100,12 +137,12 @@ public class ResultsConverter<T, K> {
             String label = bucket.getKeyAsText() + " TO " + bucket.getKeyAsText();
             buckets.add(new Bucket(label, bucket.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        aggs.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     private void addStats(org.elasticsearch.search.aggregations.metrics.stats.Stats agg) {
         Stats stats = new Stats(agg.getCount(), agg.getSum(), agg.getMin(), agg.getMax(), agg.getAvg());
-        facets.add(new AggregationResults(agg.getName(), null, stats));
+        aggs.put(agg.getName(), new AggregationResults(agg.getName(), null, stats));
     }
 
     protected void addTerms(Terms agg) {
@@ -113,20 +150,30 @@ public class ResultsConverter<T, K> {
         for (Terms.Bucket bucket : agg.getBuckets()) {
             buckets.add(new Bucket(bucket.getKey(), bucket.getDocCount()));
         }
-        facets.add(new AggregationResults(agg.getName(), buckets));
+        aggs.put(agg.getName(), new AggregationResults(agg.getName(), buckets));
     }
 
     public Results<T> convert() throws Exception {
         initialize();
         addItems();
-        addFacets();
-        Results<T> results = new Results<T>(query, facets, items, totalItems);
+        //addFacets();
+        addAggregations();
+        Results<T> results = new Results<T>(query, aggs, items, totalItems);
         return results;
     }
 
     protected void initialize() {
         hits = response.getHits();
         totalItems = (int) hits.getTotalHits();
+    }
+
+    public ResultsConverter register(String type, AggregationResultsConverter converter) {
+        aggConverters.put(type, converter);
+        return this;
+    }
+
+    protected void registerDefaultConverters() {
+        register("terms", new TermAggregationConverter());
     }
 
 }

@@ -3,7 +3,11 @@ package com.scaleset.search;
 import com.scaleset.search.Query;
 import com.scaleset.search.Results;
 
+import java.util.List;
+
 public interface GenericSearchDao<T, KEY> {
+
+    void close() throws Exception;
 
     void delete(T entity) throws Exception;
 
@@ -22,5 +26,7 @@ public interface GenericSearchDao<T, KEY> {
     T findOne(String q) throws Exception;
 
     T save(T entity) throws Exception;
+
+    List<T> saveBatch(List<T> entities) throws Exception;
 
 }

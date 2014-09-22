@@ -25,7 +25,7 @@ public class GeoPolygonFilterConverter implements FilterConverter {
 
     @Override
     public FilterBuilder convert(Filter filter) {
-        String field = filter.getString("field") + ".coordinates";
+        String field = filter.getString("field");
         Geometry geometry = filter.get(Geometry.class, "geometry");
         ShapeBuilder shapeBuilder = ShapeBuilderUtil.toShapeBuilder(geometry);
         GeoPolygonFilterBuilder result = null;
