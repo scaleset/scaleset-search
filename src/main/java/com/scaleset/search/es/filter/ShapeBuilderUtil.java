@@ -1,7 +1,6 @@
 package com.scaleset.search.es.filter;
 
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.operation.overlay.PointBuilder;
 import org.elasticsearch.common.geo.builders.BasePolygonBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
