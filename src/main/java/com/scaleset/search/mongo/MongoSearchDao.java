@@ -33,7 +33,7 @@ public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
     }
 
     @Override

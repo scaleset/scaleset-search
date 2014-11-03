@@ -1,10 +1,13 @@
 package com.scaleset.search.es;
 
 import com.scaleset.search.Query;
+import org.elasticsearch.search.SearchHit;
 
 public interface SearchMapping<T, K> {
 
     T fromDocument(String id, String doc) throws Exception;
+
+    T fromSearchHit(SearchHit hit) throws Exception;
 
     String id(T obj) throws Exception;
 

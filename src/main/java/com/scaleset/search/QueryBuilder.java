@@ -15,6 +15,7 @@ public class QueryBuilder {
     private String geoField;
     private Map<String, Filter> filters = new HashMap<>();
     private int offset = 0;
+    private List<String> fields = new ArrayList<>();
     private Integer limit = 10;
     private String q = "";
     private List<Sort> sorts = new ArrayList<>();
@@ -31,6 +32,7 @@ public class QueryBuilder {
             this.aggregations(prototype.getAggs());
             this.filters(prototype.getFilters());
             this.sort(prototype.getSorts());
+            this.field(prototype.getFields());
         }
     }
 
@@ -92,7 +94,7 @@ public class QueryBuilder {
     }
 
     public Query build() {
-        Query result = new Query(q, bbox, geoField, offset, limit, sorts, aggregations, filters);
+        Query result = new Query(q, bbox, geoField, fields, offset, limit, sorts, aggregations, filters);
         return result;
     }
 
@@ -146,6 +148,13 @@ public class QueryBuilder {
             for (Sort sort : sorts) {
                 this.sorts.add(sort);
             }
+        }
+        return this;
+    }
+
+    public QueryBuilder field(String... fields) {
+        for (String field : fields) {
+            this.fields.add(field);
         }
         return this;
     }

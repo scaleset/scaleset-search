@@ -157,6 +157,12 @@ public class DefaultQueryConverter implements QueryConverter {
         }
     }
 
+    protected void addFields(SearchRequestBuilder builder) {
+        if (query.getFields().length > 0) {
+            builder.addFields(query.getFields());
+        }
+    }
+
     @Override
     public SearchRequestBuilder searchRequest() {
         SearchRequestBuilder builder = client.prepareSearch(index);
@@ -169,6 +175,7 @@ public class DefaultQueryConverter implements QueryConverter {
         setFilter(builder, boolFilter);
         addAggregations(builder);
         addSorts(builder);
+        addFields(builder);
         return builder;
     }
 
