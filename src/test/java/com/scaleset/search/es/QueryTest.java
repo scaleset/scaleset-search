@@ -82,6 +82,14 @@ public class QueryTest extends Assert {
     }
 
     @Test
+    public void testProjection() throws Exception {
+        QueryBuilder queryBuilder = new QueryBuilder().field("id", "properties.time");
+        Query query = queryBuilder.build();
+        Results<Feature> results = featureDao.search(query);
+        assertEquals(46, (long) results.getTotalItems());
+    }
+
+    @Test
     public void testTermAggregation() throws Exception {
         QueryBuilder queryBuilder = new QueryBuilder();
         queryBuilder.limit(0);
