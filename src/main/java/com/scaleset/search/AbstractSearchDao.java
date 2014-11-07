@@ -1,6 +1,12 @@
 package com.scaleset.search;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class AbstractSearchDao<T, K> implements GenericSearchDao<T, K> {
+
+    public void close() {
+    }
 
     @Override
     public void delete(T entity) throws Exception {
@@ -47,4 +53,15 @@ public abstract class AbstractSearchDao<T, K> implements GenericSearchDao<T, K> 
     public T save(T entity) throws Exception {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public List<T> saveBatch(List<T> entities) throws Exception {
+        List<T> results = new ArrayList<>();
+        for (T entity : entities) {
+            save(entity);
+            results.add(entity);
+        }
+        return results;
+    }
+
 }

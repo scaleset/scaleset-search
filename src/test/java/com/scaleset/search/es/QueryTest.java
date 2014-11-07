@@ -78,7 +78,16 @@ public class QueryTest extends Assert {
         Query query = queryBuilder.build();
         Results<Feature> results = featureDao.search(query);
         assertEquals(16, (long) results.getTotalItems());
+        assertNotNull(results.getHeaders().get("took"));
         assertNotNull(query);
+    }
+
+    @Test
+    public void testProjection() throws Exception {
+        QueryBuilder queryBuilder = new QueryBuilder().field("id", "properties.time");
+        Query query = queryBuilder.build();
+        Results<Feature> results = featureDao.search(query);
+        assertEquals(46, (long) results.getTotalItems());
     }
 
     @Test

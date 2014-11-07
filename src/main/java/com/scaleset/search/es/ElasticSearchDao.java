@@ -36,7 +36,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         client.close();
     }
 

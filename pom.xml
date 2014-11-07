@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.scaleset</groupId>
     <artifactId>scaleset-search</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <packaging>jar</packaging>
     <name>scaleset-search</name>
     <description>Java object model for representing query requests in REST protocols.</description>
@@ -118,6 +118,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>${aws.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -168,5 +175,6 @@
         <jackson.version>2.3.3</jackson.version>
         <scaleset-geo.version>0.12.0</scaleset-geo.version>
         <elasticsearch.version>1.3.0</elasticsearch.version>
+        <aws.version>1.9.0</aws.version>
     </properties>
 </project>
