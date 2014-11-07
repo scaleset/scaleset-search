@@ -25,6 +25,7 @@ public class ResultsConverter<T, K> {
     private Map<String, AggregationResults> aggs = new HashMap<>();
     private SearchHits hits;
     private SearchMapping<T, K> mapping;
+    private Map<String, Object> headers = new HashMap<>();
     private Map<String, AggregationResultsConverter> aggConverters = new HashMap<>();
 
     public ResultsConverter(Query query, SearchResponse response, SearchMapping<T, K> mapping) {
@@ -78,10 +79,15 @@ public class ResultsConverter<T, K> {
         }
     }
 
+    protected void addHeaders() {
+        headers.put("took", response.getTookInMillis());
+    }
+
     public Results<T> convert() throws Exception {
         initialize();
         addItems();
         addAggregations();
+        addHeaders();
         Results<T> results = new Results<T>(query, aggs, items, totalItems);
         return results;
     }

@@ -4,9 +4,7 @@ import com.scaleset.search.Aggregation;
 import com.scaleset.search.Filter;
 import com.scaleset.search.Query;
 import com.scaleset.search.Sort;
-import com.scaleset.search.es.agg.AggregationConverter;
-import com.scaleset.search.es.agg.AggregationResultsConverter;
-import com.scaleset.search.es.agg.TermAggregationConverter;
+import com.scaleset.search.es.agg.*;
 import com.scaleset.search.es.filter.*;
 import com.vividsolutions.jts.geom.Envelope;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
@@ -212,6 +210,8 @@ public class DefaultQueryConverter implements QueryConverter {
 
     protected void registerDefaultConverters() {
         register("terms", new TermAggregationConverter());
+        register("geohash_grid_stats", new GeoHashGridStatsAggregationConverter());
+        register("geohash_grid", new GeoHashGridAggregationConverter());
     }
 
     protected void registerDefaultFilterConverters() {

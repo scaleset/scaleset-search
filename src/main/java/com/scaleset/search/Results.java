@@ -18,16 +18,17 @@ public class Results<T> {
     private Query query;
     private Integer totalItems = 0;
     private Envelope bbox;
+    private Map<String, Object> headers = new HashMap<String, Object>();
 
     /* For Jackson */
     protected Results() {
     }
 
     public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems) {
-        this(query, aggs, items, totalItems, null);
+        this(query, aggs, items, totalItems, null, null);
     }
 
-    public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems, Envelope bbox) {
+    public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems, Envelope bbox, Map<String, Object> headers) {
         this.query = query;
         if (aggs != null) {
             this.aggs.putAll(aggs);
@@ -35,6 +36,9 @@ public class Results<T> {
         this.items.addAll(items);
         this.totalItems = totalItems;
         this.bbox = bbox;
+        if (headers != null) {
+            this.headers.putAll(headers);
+        }
     }
 
     public Results(Query query, List<T> items) {
@@ -52,6 +56,10 @@ public class Results<T> {
 
     public Map<String, AggregationResults> getAggs() {
         return aggs;
+    }
+
+    public Map<String, Object> getHeaders() {
+        return headers;
     }
 
     public List<T> getItems() {

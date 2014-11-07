@@ -40,7 +40,6 @@ public class QueryBuilder {
         q(q);
     }
 
-
     public QueryBuilder aggregation(Aggregation... aggregations) {
         if (aggregations != null) {
             for (Aggregation aggregation : aggregations) {
