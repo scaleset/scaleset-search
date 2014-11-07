@@ -8,6 +8,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.GeoDistanceFilterBuilder;
 
 public class GeoDistanceFilterConverter implements FilterConverter {
 
@@ -15,13 +16,17 @@ public class GeoDistanceFilterConverter implements FilterConverter {
 
     @Override
     public FilterBuilder convert(Filter filter) {
-        String field = filter.getString("field") + ".coordinates";
+        String field = filter.getString("field");
         String distance = filter.getString("distance");
+        String optimizeBbox = filter.getString("optimizeBbox");
         Geometry geometry = filter.get(Geometry.class, "geometry");
         Coordinate coord = geometry.getCentroid().getCoordinate();
-        FilterBuilder result = FilterBuilders.geoDistanceFilter(field)
+        GeoDistanceFilterBuilder result = FilterBuilders.geoDistanceFilter(field)
                 .lon(coord.x).lat(coord.y)
                 .distance(distance);
+        if (optimizeBbox != null) {
+            result.optimizeBbox("indexed");
+        }
         return result;
     }
 

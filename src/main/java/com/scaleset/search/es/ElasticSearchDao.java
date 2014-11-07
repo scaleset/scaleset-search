@@ -115,13 +115,12 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     }
 
     public Results<T> search(Query query) throws Exception {
-        SearchRequestBuilder srb = convert(query);
+        Query updated = new QueryBuilder(query).build();
+        SearchRequestBuilder srb = convert(updated);
         SearchResponse response = srb.execute().actionGet();
-        Results<T> results = new ResultsConverter<T, K>(query, response, mapping).convert();
-
+        Results<T> results = createResultsConverter(updated, response, mapping).convert();
         return results;
     }
-
 
     public SearchRequestBuilder convert(Query query) throws Exception {
         return createConverter(query).searchRequest();
@@ -181,10 +180,14 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
         return mapping;
     }
 
-    protected QueryConverter createConverter(Query query) throws Exception {
+    protected DefaultQueryConverter createConverter(Query query) throws Exception {
         String index = mapping.indexForQuery(query);
         String type = mapping.typeForQuery(query);
-        return new QueryConverter(client, query, index, type);
+        return new DefaultQueryConverter(client, query, index, type);
+    }
+
+    protected ResultsConverter<T, K> createResultsConverter(Query query, SearchResponse response, SearchMapping<T, K> mapping) throws Exception {
+        return new ResultsConverter<T, K>(query, response, mapping);
     }
 
 }

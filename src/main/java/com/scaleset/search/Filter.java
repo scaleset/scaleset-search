@@ -1,10 +1,14 @@
 package com.scaleset.search;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scaleset.geo.geojson.GeoJsonModule;
 import com.scaleset.utils.Coerce;
 import com.scaleset.utils.Extensible;
 
+import java.util.Map;
+
+@JsonPropertyOrder({"type", "name"})
 public class Filter extends Extensible {
 
     private String name;
@@ -19,6 +23,14 @@ public class Filter extends Extensible {
         this.type = type;
     }
 
+    public Filter(String name, String type, Map<String, Object> properties) {
+        this.name = name;
+        this.type = type;
+        for (String key : properties.keySet()) {
+            put(key, properties.get(key));
+        }
+    }
+
     public String getName() {
         return name;
     }
@@ -28,6 +40,9 @@ public class Filter extends Extensible {
         return type;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setType(String type) {
         this.type = type;
