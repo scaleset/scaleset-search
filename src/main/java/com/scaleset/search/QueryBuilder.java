@@ -152,8 +152,10 @@ public class QueryBuilder {
     }
 
     public QueryBuilder field(String... fields) {
-        for (String field : fields) {
-            this.fields.add(field);
+        if (fields != null) {
+            for (String field : fields) {
+                this.fields.add(field);
+            }
         }
         return this;
     }
