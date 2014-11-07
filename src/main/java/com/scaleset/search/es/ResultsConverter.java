@@ -88,7 +88,7 @@ public class ResultsConverter<T, K> {
         addItems();
         addAggregations();
         addHeaders();
-        Results<T> results = new Results<T>(query, aggs, items, totalItems);
+        Results<T> results = new Results<T>(query, aggs, items, totalItems, null, headers);
         return results;
     }
 

@@ -78,6 +78,7 @@ public class QueryTest extends Assert {
         Query query = queryBuilder.build();
         Results<Feature> results = featureDao.search(query);
         assertEquals(16, (long) results.getTotalItems());
+        assertNotNull(results.getHeaders().get("took"));
         assertNotNull(query);
     }
 
