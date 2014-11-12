@@ -30,7 +30,7 @@ public class DefaultQueryConverter implements QueryConverter {
 
     private Client client;
     private String index;
-    private String type;
+    private String[] types = new String[0];
     private Query query;
     private Map<String, AggregationConverter> converters = new HashMap<>();
     private Map<String, FilterConverter> filterConverters = new HashMap<>();
@@ -40,11 +40,11 @@ public class DefaultQueryConverter implements QueryConverter {
         this(client, query, index, null);
     }
 
-    public DefaultQueryConverter(Client client, Query query, String index, String type) {
+    public DefaultQueryConverter(Client client, Query query, String index, String[] types) {
         this.client = client;
         this.query = query;
         this.index = index;
-        this.type = type;
+        this.types = types;
         registerDefaultConverters();
         registerDefaultFilterConverters();
     }
@@ -108,8 +108,8 @@ public class DefaultQueryConverter implements QueryConverter {
     }
 
     protected void addQ(SearchRequestBuilder builder, BoolFilterBuilder boolFilter) {
-        if (type != null && !type.isEmpty()) {
-            builder.setTypes(type);
+        if (types.length > 0) {
+            builder.setTypes(types);
         }
         if (query.getQ() != null && !query.getQ().isEmpty()) {
             boolFilter.must(queryFilter(queryString(query.getQ()).defaultOperator(Operator.AND)));
@@ -117,8 +117,8 @@ public class DefaultQueryConverter implements QueryConverter {
     }
 
     protected void addQ(DeleteByQueryRequestBuilder builder, BoolFilterBuilder boolFilter) {
-        if (type != null && !type.isEmpty()) {
-            builder.setTypes(type);
+        if (types.length > 0) {
+            builder.setTypes(types);
         }
         if (query.getQ() != null && !query.getQ().isEmpty()) {
             boolFilter.must(queryFilter(queryString(query.getQ()).defaultOperator(Operator.AND)));
