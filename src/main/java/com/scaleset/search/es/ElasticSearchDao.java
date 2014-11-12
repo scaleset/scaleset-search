@@ -182,8 +182,8 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
 
     protected DefaultQueryConverter createConverter(Query query) throws Exception {
         String index = mapping.indexForQuery(query);
-        String type = mapping.typeForQuery(query);
-        return new DefaultQueryConverter(client, query, index, type);
+        String[] types = mapping.typesForQuery(query);
+        return new DefaultQueryConverter(client, query, index, types);
     }
 
     protected ResultsConverter<T, K> createResultsConverter(Query query, SearchResponse response, SearchMapping<T, K> mapping) throws Exception {

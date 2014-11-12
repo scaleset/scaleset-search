@@ -11,6 +11,7 @@ import com.scaleset.search.Query;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,19 +21,19 @@ public abstract class AbstractSearchMapping<T, K> implements SearchMapping<T, K>
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new GeoJsonModule());
     private JavaType javaType;
     private String defaultIndex;
-    private String defaultType;
+    private String[] defaultTypes;
     private JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
-    public AbstractSearchMapping(Class<? extends T> type, String defaultIndex, String defaultType) {
+    public AbstractSearchMapping(Class<? extends T> type, String defaultIndex, String... defaultTypes) {
         this.javaType = objectMapper.getTypeFactory().constructType(type);
         this.defaultIndex = defaultIndex;
-        this.defaultType = defaultType;
+        this.defaultTypes = defaultTypes;
     }
 
-    public AbstractSearchMapping(TypeReference typeReference, String defaultIndex, String defaultType) {
+    public AbstractSearchMapping(TypeReference typeReference, String defaultIndex, String... defaultTypes) {
         this.javaType = objectMapper.getTypeFactory().constructType(typeReference);
         this.defaultIndex = defaultIndex;
-        this.defaultType = defaultType;
+        this.defaultTypes = defaultTypes;
     }
 
     public T fromDocument(String id, String doc) throws Exception {
@@ -92,16 +93,16 @@ public abstract class AbstractSearchMapping<T, K> implements SearchMapping<T, K>
 
     @Override
     public String type(T object) throws Exception {
-        return defaultType;
+        return defaultTypes.length == 0 ? null : defaultTypes[0];
     }
 
     @Override
     public String typeForKey(K key) throws Exception {
-        return defaultType;
+        return defaultTypes.length == 0 ? null : defaultTypes[0];
     }
 
     @Override
-    public String typeForQuery(Query query) throws Exception {
-        return defaultType;
+    public String[] typesForQuery(Query query) throws Exception {
+        return defaultTypes;
     }
 }
