@@ -212,9 +212,12 @@ public class DefaultQueryConverter implements QueryConverter {
         register("terms", new TermAggregationConverter());
         register("geohash_grid_stats", new GeoHashGridStatsAggregationConverter());
         register("geohash_grid", new GeoHashGridAggregationConverter());
+        register("filter", new FilterAggregationConverter());
+        register("range", new RangeAggregationConverter());
     }
 
     protected void registerDefaultFilterConverters() {
+        register("geo_bounding_box", new GeoBoundingBoxFilterConverter());
         register("geo_distance", new GeoDistanceFilterConverter());
         register("geo_shape", new GeoShapeFilterConverter());
         register("geo_polygon", new GeoPolygonFilterConverter());

@@ -4,8 +4,7 @@ import com.scaleset.search.Aggregation;
 import com.scaleset.search.AggregationResults;
 import com.scaleset.search.Query;
 import com.scaleset.search.Results;
-import com.scaleset.search.es.agg.AggregationResultsConverter;
-import com.scaleset.search.es.agg.TermAggregationConverter;
+import com.scaleset.search.es.agg.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -104,6 +103,10 @@ public class ResultsConverter<T, K> {
 
     protected void registerDefaultConverters() {
         register("terms", new TermAggregationConverter());
+        register("filter", new FilterAggregationConverter());
+        register("range", new RangeAggregationConverter());
+        register("geohash_grid", new GeoHashGridAggregationConverter());
+        register("geohash_grid_stats", new GeoHashGridStatsAggregationConverter());
     }
 
 }
