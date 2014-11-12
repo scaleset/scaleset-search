@@ -156,17 +156,18 @@ public class MongoQueryConverter<T> {
         Term term = prefixQuery.getPrefix();
         String field = getField(term.field());
         Object value = parse(field, term.text());
-        Pattern pattern = Pattern.compile("^" + Matcher.quoteReplacement(value.toString()) + ".*");
+        Pattern pattern = Pattern.compile("^" + Matcher.quoteReplacement(value.toString()) + ".*", Pattern.CASE_INSENSITIVE);
         return new BasicDBObject(field, pattern);
     }
 
     protected DBObject handleWildcardQuery(WildcardQuery wildcardQuery) {
         Term term = wildcardQuery.getTerm();
         String field = getField(term.field());
-        String pattern = term.text().replace("?", "_QUESTION_MARK_").replace("*", "_STAR_");
-        pattern = Matcher.quoteReplacement(pattern);
-        pattern = pattern.replace("_QUESTION_MARK_", ".?").replace("_STAR_", ".*");
-        return new BasicDBObject(field, "^" + pattern + "$");
+        String value = term.text().replace("?", "_QUESTION_MARK_").replace("*", "_STAR_");
+        value = Matcher.quoteReplacement(value);
+        value = value.replace("_QUESTION_MARK_", ".?").replace("_STAR_", ".*");
+        Pattern pattern = Pattern.compile("^" + Matcher.quoteReplacement(value) + "$", Pattern.CASE_INSENSITIVE);
+        return new BasicDBObject(field, pattern);
     }
 
     protected DBObject handleProhibitedWildcardQuery(WildcardQuery wildcardQuery) {

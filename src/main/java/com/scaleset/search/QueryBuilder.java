@@ -40,6 +40,12 @@ public class QueryBuilder {
         q(q);
     }
 
+    public Aggregation agg(String name) {
+        Aggregation result = new Aggregation(name);
+        aggregation(result);
+        return result;
+    }
+
     public QueryBuilder aggregation(Aggregation... aggregations) {
         if (aggregations != null) {
             for (Aggregation aggregation : aggregations) {
