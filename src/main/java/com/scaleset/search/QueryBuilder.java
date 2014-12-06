@@ -19,7 +19,7 @@ public class QueryBuilder {
     private Integer limit = 10;
     private String q = "";
     private List<Sort> sorts = new ArrayList<>();
-    private Boolean echo;
+    private Map<String, Object> headers = new HashMap<>();
 
     public QueryBuilder() {
     }
@@ -99,17 +99,17 @@ public class QueryBuilder {
     }
 
     public Query build() {
-        Query result = new Query(q, bbox, geoField, fields, offset, limit, sorts, aggregations, filters);
+        Query result = new Query(q, bbox, geoField, fields, offset, limit, sorts, aggregations, filters, headers);
         return result;
     }
 
     public QueryBuilder echo(boolean echo) {
-        this.echo = echo;
+        headers.put("echo", echo);
         return this;
     }
 
     public QueryBuilder echo() {
-        this.echo = true;
+        headers.put("echo", true);
         return this;
     }
 
@@ -163,6 +163,11 @@ public class QueryBuilder {
                 this.fields.add(field);
             }
         }
+        return this;
+    }
+
+    public QueryBuilder header(String name, Object value) {
+        headers.put(name, value);
         return this;
     }
 

@@ -26,6 +26,8 @@ public class Query {
 
     private int offset = 0;
 
+    private Map<String, Object> headers = new HashMap<>();
+
     private String q;
 
     private Sort[] sorts;
@@ -34,7 +36,7 @@ public class Query {
     public Query() {
     }
 
-    public Query(String q, Envelope bbox, String geoField, List<String> fields, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters) {
+    public Query(String q, Envelope bbox, String geoField, List<String> fields, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters, Map<String, Object> headers) {
         this.q = q;
         this.offset = offset;
         this.limit = limit;
@@ -54,6 +56,9 @@ public class Query {
                 this.filters.put(name, new Filter(name, filter.getType(), filter.anyGetter()));
             }
             this.filters.putAll(filters);
+        }
+        if (headers != null) {
+            this.headers.putAll(headers);
         }
     }
 
@@ -79,6 +84,10 @@ public class Query {
 
     public int getOffset() {
         return offset;
+    }
+
+    public Map<String, Object> getHeaders() {
+        return headers;
     }
 
     public String getQ() {
