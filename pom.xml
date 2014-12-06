@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.scaleset</groupId>
     <artifactId>scaleset-search</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
+    <version>0.10.0</version>
     <packaging>jar</packaging>
     <name>scaleset-search</name>
     <description>Java object model for representing query requests in REST protocols.</description>
