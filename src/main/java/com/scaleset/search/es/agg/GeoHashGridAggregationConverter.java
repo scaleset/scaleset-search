@@ -27,11 +27,15 @@ public class GeoHashGridAggregationConverter extends AbstractCombinedConverter {
         GeoHashGridBuilder result = AggregationBuilders.geohashGrid(getName(aggregation));
         String field = aggregation.getString("field");
         Integer precision = aggregation.getInteger("precision");
+        Integer size = aggregation.getInteger("size");
         if (field != null) {
             result.field(field);
         }
         if (precision != null) {
             result.precision(precision);
+        }
+        if (size != null) {
+            result.size(size);
         }
         // not sure we really want to support sub-aggs, but we will
         addSubAggs(queryConverter, aggregation, result);
