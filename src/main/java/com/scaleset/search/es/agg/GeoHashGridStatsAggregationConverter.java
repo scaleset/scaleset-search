@@ -28,11 +28,16 @@ public class GeoHashGridStatsAggregationConverter extends AbstractCombinedConver
         GeoHashGridBuilder result = AggregationBuilders.geohashGrid(getName(aggregation));
         String field = aggregation.getString("field");
         Integer precision = aggregation.getInteger("precision");
+        Integer size = aggregation.getInteger("size");
+
         if (field != null) {
             result.field(field);
         }
         if (precision != null) {
             result.precision(precision);
+        }
+        if (size != null) {
+            result.size(size);
         }
         result.subAggregation(stats("lat_stats").field(field + ".lat"));
         result.subAggregation(stats("lon_stats").field(field + ".lon"));
