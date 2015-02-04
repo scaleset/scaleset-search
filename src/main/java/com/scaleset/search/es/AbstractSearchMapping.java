@@ -1,39 +1,48 @@
 package com.scaleset.search.es;
 
+import java.util.List;
+
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.scaleset.geo.geojson.GeoJsonModule;
 import com.scaleset.search.Query;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractSearchMapping<T, K> implements SearchMapping<T, K> {
 
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new GeoJsonModule());
     private JavaType javaType;
-    private String defaultIndex;
+    private String[] indices;
     private String[] defaultTypes;
     private JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
     public AbstractSearchMapping(Class<? extends T> type, String defaultIndex, String... defaultTypes) {
         this.javaType = objectMapper.getTypeFactory().constructType(type);
-        this.defaultIndex = defaultIndex;
         this.defaultTypes = defaultTypes;
+        this.indices = new String[] { defaultIndex };
+    }
+
+    public AbstractSearchMapping(Class<? extends T> type, String[] indices, String... defaultTypes) {
+        this.javaType = objectMapper.getTypeFactory().constructType(type);
+        this.defaultTypes = defaultTypes;
+        this.indices = indices;
     }
 
     public AbstractSearchMapping(TypeReference typeReference, String defaultIndex, String... defaultTypes) {
         this.javaType = objectMapper.getTypeFactory().constructType(typeReference);
-        this.defaultIndex = defaultIndex;
         this.defaultTypes = defaultTypes;
+        this.indices = new String[] { defaultIndex };
+    }
+
+    public AbstractSearchMapping(TypeReference typeReference, String[] indices, String... defaultTypes) {
+        this.javaType = objectMapper.getTypeFactory().constructType(typeReference);
+        this.defaultTypes = defaultTypes;
+        this.indices = indices;
     }
 
     public T fromDocument(String id, String doc) throws Exception {
@@ -72,17 +81,22 @@ public abstract class AbstractSearchMapping<T, K> implements SearchMapping<T, K>
 
     @Override
     public String index(T object) throws Exception {
-        return defaultIndex;
+        return indices[0];
     }
 
     @Override
     public String indexForKey(K key) throws Exception {
-        return defaultIndex;
+        return indices[0];
     }
 
     @Override
     public String indexForQuery(Query query) throws Exception {
-        return defaultIndex;
+        return indices[0];
+    }
+
+    @Override
+    public String[] indicesForQuery(Query query) throws Exception {
+        return indices;
     }
 
     @Override
