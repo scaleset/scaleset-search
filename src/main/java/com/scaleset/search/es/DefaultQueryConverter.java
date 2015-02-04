@@ -1,12 +1,15 @@
 package com.scaleset.search.es;
 
-import com.scaleset.search.Aggregation;
-import com.scaleset.search.Filter;
-import com.scaleset.search.Query;
-import com.scaleset.search.Sort;
-import com.scaleset.search.es.agg.*;
-import com.scaleset.search.es.filter.*;
-import com.vividsolutions.jts.geom.Envelope;
+import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
+import static org.elasticsearch.index.query.FilterBuilders.geoBoundingBoxFilter;
+import static org.elasticsearch.index.query.FilterBuilders.queryFilter;
+import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryString;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
@@ -20,16 +23,30 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.elasticsearch.index.query.FilterBuilders.*;
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import com.scaleset.search.Aggregation;
+import com.scaleset.search.Filter;
+import com.scaleset.search.Query;
+import com.scaleset.search.Sort;
+import com.scaleset.search.es.agg.AggregationConverter;
+import com.scaleset.search.es.agg.AggregationResultsConverter;
+import com.scaleset.search.es.agg.FilterAggregationConverter;
+import com.scaleset.search.es.agg.GeoHashGridAggregationConverter;
+import com.scaleset.search.es.agg.GeoHashGridStatsAggregationConverter;
+import com.scaleset.search.es.agg.RangeAggregationConverter;
+import com.scaleset.search.es.agg.TermAggregationConverter;
+import com.scaleset.search.es.filter.FilterConverter;
+import com.scaleset.search.es.filter.GeoBoundingBoxFilterConverter;
+import com.scaleset.search.es.filter.GeoDistanceFilterConverter;
+import com.scaleset.search.es.filter.GeoPolygonFilterConverter;
+import com.scaleset.search.es.filter.GeoShapeFilterConverter;
+import com.scaleset.search.es.filter.QueryFilterConverter;
+import com.scaleset.search.es.filter.TypeFilterConverter;
+import com.vividsolutions.jts.geom.Envelope;
 
 public class DefaultQueryConverter implements QueryConverter {
 
     private Client client;
-    private String index;
+    private String[] indices = new String[0];
     private String[] types = new String[0];
     private Query query;
     private Map<String, AggregationConverter> converters = new HashMap<>();
@@ -40,10 +57,18 @@ public class DefaultQueryConverter implements QueryConverter {
         this(client, query, index, null);
     }
 
+    public DefaultQueryConverter(Client client, Query query, String[] indices) {
+        this(client, query, indices, null);
+    }
+
     public DefaultQueryConverter(Client client, Query query, String index, String[] types) {
+        this(client, query, new String[] { index }, types);
+    }
+
+    public DefaultQueryConverter(Client client, Query query, String[] indices, String[] types) {
         this.client = client;
         this.query = query;
-        this.index = index;
+        this.indices = indices;
         this.types = types;
         registerDefaultConverters();
         registerDefaultFilterConverters();
@@ -129,9 +154,7 @@ public class DefaultQueryConverter implements QueryConverter {
         Envelope bbox = query.getBbox();
         String geoField = query.getGeoField();
         if ((geoField != null && !geoField.isEmpty()) && (bbox != null)) {
-            boolFilter.must(geoBoundingBoxFilter(geoField)
-                    .bottomLeft(bbox.getMinY(), bbox.getMinX())
-                    .topRight(bbox.getMaxY(), bbox.getMaxX()));
+            boolFilter.must(geoBoundingBoxFilter(geoField).bottomLeft(bbox.getMinY(), bbox.getMinX()).topRight(bbox.getMaxY(), bbox.getMaxX()));
         }
     }
 
@@ -163,7 +186,7 @@ public class DefaultQueryConverter implements QueryConverter {
 
     @Override
     public SearchRequestBuilder searchRequest() {
-        SearchRequestBuilder builder = client.prepareSearch(index);
+        SearchRequestBuilder builder = client.prepareSearch(indices);
         builder.setSearchType(SearchType.DEFAULT);
         BoolFilterBuilder boolFilter = boolFilter();
         addPaging(builder);
@@ -179,7 +202,7 @@ public class DefaultQueryConverter implements QueryConverter {
 
     @Override
     public DeleteByQueryRequestBuilder deleteRequest() {
-        DeleteByQueryRequestBuilder builder = client.prepareDeleteByQuery(index);
+        DeleteByQueryRequestBuilder builder = client.prepareDeleteByQuery(indices);
         BoolFilterBuilder boolFilter = boolFilter();
         addQ(builder, boolFilter);
         addFilters(boolFilter);
