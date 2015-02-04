@@ -1,9 +1,8 @@
 package com.scaleset.search.es;
 
-import com.scaleset.search.Query;
 import org.elasticsearch.search.SearchHit;
 
-import java.util.List;
+import com.scaleset.search.Query;
 
 public interface SearchMapping<T, K> {
 
@@ -20,6 +19,8 @@ public interface SearchMapping<T, K> {
     String indexForKey(K key) throws Exception;
 
     String indexForQuery(Query query) throws Exception;
+
+    String[] indicesForQuery(Query query) throws Exception;
 
     String toDocument(T obj) throws Exception;
 
