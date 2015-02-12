@@ -23,6 +23,10 @@ public class AggregationResults {
         this(name, buckets, null);
     }
 
+    public AggregationResults(String name, Stats stats) {
+        this(name, null, stats);
+    }
+
     public AggregationResults(String name, List<Bucket> buckets, Stats stats) {
         this.name = name;
         if (buckets != null) {
