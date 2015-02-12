@@ -97,10 +97,15 @@ public class QueryTest extends Assert {
         Aggregation magAgg = new Aggregation("magnitudeType", "terms");
         magAgg.put("field", "properties.magnitudeType");
         queryBuilder.aggregation(magAgg);
+        Aggregation statsAgg = new Aggregation("magStats", "stats");
+        statsAgg.put("field", "properties.mag");
+        queryBuilder.aggregation(statsAgg);
         Query query = queryBuilder.build();
         Results<Feature> results = featureDao.search(query);
         AggregationResults aggResults = results.getAgg("magnitudeType");
         assertNotNull(aggResults);
+        AggregationResults statsResults = results.getAgg("magStats");
+        assertNotNull(statsResults);
     }
 
 }

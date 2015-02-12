@@ -1,15 +1,12 @@
 package com.scaleset.search.es;
 
-import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
-import static org.elasticsearch.index.query.FilterBuilders.geoBoundingBoxFilter;
-import static org.elasticsearch.index.query.FilterBuilders.queryFilter;
-import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryString;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import com.scaleset.search.Aggregation;
+import com.scaleset.search.Filter;
+import com.scaleset.search.Query;
+import com.scaleset.search.Sort;
+import com.scaleset.search.es.agg.*;
+import com.scaleset.search.es.filter.*;
+import com.vividsolutions.jts.geom.Envelope;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
@@ -23,25 +20,11 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.scaleset.search.Aggregation;
-import com.scaleset.search.Filter;
-import com.scaleset.search.Query;
-import com.scaleset.search.Sort;
-import com.scaleset.search.es.agg.AggregationConverter;
-import com.scaleset.search.es.agg.AggregationResultsConverter;
-import com.scaleset.search.es.agg.FilterAggregationConverter;
-import com.scaleset.search.es.agg.GeoHashGridAggregationConverter;
-import com.scaleset.search.es.agg.GeoHashGridStatsAggregationConverter;
-import com.scaleset.search.es.agg.RangeAggregationConverter;
-import com.scaleset.search.es.agg.TermAggregationConverter;
-import com.scaleset.search.es.filter.FilterConverter;
-import com.scaleset.search.es.filter.GeoBoundingBoxFilterConverter;
-import com.scaleset.search.es.filter.GeoDistanceFilterConverter;
-import com.scaleset.search.es.filter.GeoPolygonFilterConverter;
-import com.scaleset.search.es.filter.GeoShapeFilterConverter;
-import com.scaleset.search.es.filter.QueryFilterConverter;
-import com.scaleset.search.es.filter.TypeFilterConverter;
-import com.vividsolutions.jts.geom.Envelope;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class DefaultQueryConverter implements QueryConverter {
 
@@ -62,7 +45,7 @@ public class DefaultQueryConverter implements QueryConverter {
     }
 
     public DefaultQueryConverter(Client client, Query query, String index, String[] types) {
-        this(client, query, new String[] { index }, types);
+        this(client, query, new String[]{index}, types);
     }
 
     public DefaultQueryConverter(Client client, Query query, String[] indices, String[] types) {
@@ -237,6 +220,7 @@ public class DefaultQueryConverter implements QueryConverter {
         register("geohash_grid", new GeoHashGridAggregationConverter());
         register("filter", new FilterAggregationConverter());
         register("range", new RangeAggregationConverter());
+        register("stats", new StatsAggregationConverter());
     }
 
     protected void registerDefaultFilterConverters() {
