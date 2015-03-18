@@ -1,10 +1,14 @@
 package com.scaleset.search.es;
 
+import org.elasticsearch.search.SearchHit;
+
 import com.scaleset.search.Query;
 
 public interface SearchMapping<T, K> {
 
     T fromDocument(String id, String doc) throws Exception;
+
+    T fromSearchHit(SearchHit hit) throws Exception;
 
     String id(T obj) throws Exception;
 
@@ -16,12 +20,14 @@ public interface SearchMapping<T, K> {
 
     String indexForQuery(Query query) throws Exception;
 
+    String[] indicesForQuery(Query query) throws Exception;
+
     String toDocument(T obj) throws Exception;
 
     String type(T object) throws Exception;
 
     String typeForKey(K key) throws Exception;
 
-    String typeForQuery(Query query) throws Exception;
+    String[] typesForQuery(Query query) throws Exception;
 
 }

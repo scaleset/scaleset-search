@@ -78,7 +78,16 @@ public class QueryTest extends Assert {
         Query query = queryBuilder.build();
         Results<Feature> results = featureDao.search(query);
         assertEquals(16, (long) results.getTotalItems());
+        assertNotNull(results.getHeaders().get("took"));
         assertNotNull(query);
+    }
+
+    @Test
+    public void testProjection() throws Exception {
+        QueryBuilder queryBuilder = new QueryBuilder().field("id", "properties.time");
+        Query query = queryBuilder.build();
+        Results<Feature> results = featureDao.search(query);
+        assertEquals(46, (long) results.getTotalItems());
     }
 
     @Test
@@ -88,10 +97,18 @@ public class QueryTest extends Assert {
         Aggregation magAgg = new Aggregation("magnitudeType", "terms");
         magAgg.put("field", "properties.magnitudeType");
         queryBuilder.aggregation(magAgg);
+        Aggregation statsAgg = new Aggregation("magStats", "stats");
+        statsAgg.put("field", "properties.mag");
+        queryBuilder.aggregation(statsAgg);
         Query query = queryBuilder.build();
         Results<Feature> results = featureDao.search(query);
         AggregationResults aggResults = results.getAgg("magnitudeType");
         assertNotNull(aggResults);
+        AggregationResults statsResults = results.getAgg("magStats");
+        Stats stats = statsResults.getStats();
+        assertNotNull(stats);
+        assertTrue(stats.getMax() > 0);
+        assertNotNull(statsResults);
     }
 
 }

@@ -15,10 +15,11 @@ public class QueryBuilder {
     private String geoField;
     private Map<String, Filter> filters = new HashMap<>();
     private int offset = 0;
+    private List<String> fields = new ArrayList<>();
     private Integer limit = 10;
     private String q = "";
     private List<Sort> sorts = new ArrayList<>();
-    private Boolean echo;
+    private Map<String, Object> headers = new HashMap<>();
 
     public QueryBuilder() {
     }
@@ -31,6 +32,7 @@ public class QueryBuilder {
             this.aggregations(prototype.getAggs());
             this.filters(prototype.getFilters());
             this.sort(prototype.getSorts());
+            this.field(prototype.getFields());
         }
     }
 
@@ -38,6 +40,11 @@ public class QueryBuilder {
         q(q);
     }
 
+    public Aggregation agg(String name) {
+        Aggregation result = new Aggregation(name);
+        aggregation(result);
+        return result;
+    }
 
     public QueryBuilder aggregation(Aggregation... aggregations) {
         if (aggregations != null) {
@@ -92,17 +99,17 @@ public class QueryBuilder {
     }
 
     public Query build() {
-        Query result = new Query(q, bbox, geoField, offset, limit, sorts, aggregations, filters);
+        Query result = new Query(q, bbox, geoField, fields, offset, limit, sorts, aggregations, filters, headers);
         return result;
     }
 
     public QueryBuilder echo(boolean echo) {
-        this.echo = echo;
+        headers.put("echo", echo);
         return this;
     }
 
     public QueryBuilder echo() {
-        this.echo = true;
+        headers.put("echo", true);
         return this;
     }
 
@@ -147,6 +154,20 @@ public class QueryBuilder {
                 this.sorts.add(sort);
             }
         }
+        return this;
+    }
+
+    public QueryBuilder field(String... fields) {
+        if (fields != null) {
+            for (String field : fields) {
+                this.fields.add(field);
+            }
+        }
+        return this;
+    }
+
+    public QueryBuilder header(String name, Object value) {
+        headers.put(name, value);
         return this;
     }
 

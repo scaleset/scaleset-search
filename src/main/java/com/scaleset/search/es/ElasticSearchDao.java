@@ -1,6 +1,11 @@
 package com.scaleset.search.es;
 
-import com.scaleset.search.*;
+import static org.elasticsearch.client.Requests.createIndexRequest;
+import static org.elasticsearch.client.Requests.deleteIndexRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -18,11 +23,11 @@ import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.elasticsearch.client.Requests.createIndexRequest;
-import static org.elasticsearch.client.Requests.deleteIndexRequest;
+import com.scaleset.search.AbstractSearchDao;
+import com.scaleset.search.GenericSearchDao;
+import com.scaleset.search.Query;
+import com.scaleset.search.QueryBuilder;
+import com.scaleset.search.Results;
 
 public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements GenericSearchDao<T, K> {
 
@@ -36,7 +41,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         client.close();
     }
 
@@ -61,7 +66,6 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
         DeleteByQueryRequestBuilder builder = createConverter(query).deleteRequest();
         DeleteByQueryResponse response = builder.execute().actionGet();
     }
-
 
     @Override
     public T findById(K key) throws Exception {
@@ -138,8 +142,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     }
 
     public void deleteIndex(String indexName) {
-        DeleteIndexResponse deleteIndexResponse =
-                client.admin().indices().delete(deleteIndexRequest(indexName)).actionGet();
+        DeleteIndexResponse deleteIndexResponse = client.admin().indices().delete(deleteIndexRequest(indexName)).actionGet();
     }
 
     public void recreateMapping(String index, String type, String schema) {
@@ -167,7 +170,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     public boolean mappingExists(String indexName, String typeName) {
         boolean result = false;
         try {
-            String[] indices = new String[]{indexName};
+            String[] indices = new String[] { indexName };
             TypesExistsResponse exists = client.admin().indices().typesExists(new TypesExistsRequest(indices, typeName)).actionGet();
             result = exists.isExists();
         } catch (Exception e) {
@@ -181,9 +184,9 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     }
 
     protected DefaultQueryConverter createConverter(Query query) throws Exception {
-        String index = mapping.indexForQuery(query);
-        String type = mapping.typeForQuery(query);
-        return new DefaultQueryConverter(client, query, index, type);
+        String[] indices = mapping.indicesForQuery(query);
+        String[] types = mapping.typesForQuery(query);
+        return new DefaultQueryConverter(client, query, indices, types);
     }
 
     protected ResultsConverter<T, K> createResultsConverter(Query query, SearchResponse response, SearchMapping<T, K> mapping) throws Exception {

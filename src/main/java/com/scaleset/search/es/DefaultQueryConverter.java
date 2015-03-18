@@ -4,9 +4,7 @@ import com.scaleset.search.Aggregation;
 import com.scaleset.search.Filter;
 import com.scaleset.search.Query;
 import com.scaleset.search.Sort;
-import com.scaleset.search.es.agg.AggregationConverter;
-import com.scaleset.search.es.agg.AggregationResultsConverter;
-import com.scaleset.search.es.agg.TermAggregationConverter;
+import com.scaleset.search.es.agg.*;
 import com.scaleset.search.es.filter.*;
 import com.vividsolutions.jts.geom.Envelope;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
@@ -31,8 +29,8 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class DefaultQueryConverter implements QueryConverter {
 
     private Client client;
-    private String index;
-    private String type;
+    private String[] indices = new String[0];
+    private String[] types = new String[0];
     private Query query;
     private Map<String, AggregationConverter> converters = new HashMap<>();
     private Map<String, FilterConverter> filterConverters = new HashMap<>();
@@ -42,11 +40,19 @@ public class DefaultQueryConverter implements QueryConverter {
         this(client, query, index, null);
     }
 
-    public DefaultQueryConverter(Client client, Query query, String index, String type) {
+    public DefaultQueryConverter(Client client, Query query, String[] indices) {
+        this(client, query, indices, null);
+    }
+
+    public DefaultQueryConverter(Client client, Query query, String index, String[] types) {
+        this(client, query, new String[]{index}, types);
+    }
+
+    public DefaultQueryConverter(Client client, Query query, String[] indices, String[] types) {
         this.client = client;
         this.query = query;
-        this.index = index;
-        this.type = type;
+        this.indices = indices;
+        this.types = types;
         registerDefaultConverters();
         registerDefaultFilterConverters();
     }
@@ -110,8 +116,8 @@ public class DefaultQueryConverter implements QueryConverter {
     }
 
     protected void addQ(SearchRequestBuilder builder, BoolFilterBuilder boolFilter) {
-        if (type != null && !type.isEmpty()) {
-            builder.setTypes(type);
+        if (types.length > 0) {
+            builder.setTypes(types);
         }
         if (query.getQ() != null && !query.getQ().isEmpty()) {
             boolFilter.must(queryFilter(queryString(query.getQ()).defaultOperator(Operator.AND)));
@@ -119,8 +125,8 @@ public class DefaultQueryConverter implements QueryConverter {
     }
 
     protected void addQ(DeleteByQueryRequestBuilder builder, BoolFilterBuilder boolFilter) {
-        if (type != null && !type.isEmpty()) {
-            builder.setTypes(type);
+        if (types.length > 0) {
+            builder.setTypes(types);
         }
         if (query.getQ() != null && !query.getQ().isEmpty()) {
             boolFilter.must(queryFilter(queryString(query.getQ()).defaultOperator(Operator.AND)));
@@ -131,9 +137,7 @@ public class DefaultQueryConverter implements QueryConverter {
         Envelope bbox = query.getBbox();
         String geoField = query.getGeoField();
         if ((geoField != null && !geoField.isEmpty()) && (bbox != null)) {
-            boolFilter.must(geoBoundingBoxFilter(geoField)
-                    .bottomLeft(bbox.getMinY(), bbox.getMinX())
-                    .topRight(bbox.getMaxY(), bbox.getMaxX()));
+            boolFilter.must(geoBoundingBoxFilter(geoField).bottomLeft(bbox.getMinY(), bbox.getMinX()).topRight(bbox.getMaxY(), bbox.getMaxX()));
         }
     }
 
@@ -157,9 +161,15 @@ public class DefaultQueryConverter implements QueryConverter {
         }
     }
 
+    protected void addFields(SearchRequestBuilder builder) {
+        if (query.getFields().length > 0) {
+            builder.addFields(query.getFields());
+        }
+    }
+
     @Override
     public SearchRequestBuilder searchRequest() {
-        SearchRequestBuilder builder = client.prepareSearch(index);
+        SearchRequestBuilder builder = client.prepareSearch(indices);
         builder.setSearchType(SearchType.DEFAULT);
         BoolFilterBuilder boolFilter = boolFilter();
         addPaging(builder);
@@ -169,12 +179,13 @@ public class DefaultQueryConverter implements QueryConverter {
         setFilter(builder, boolFilter);
         addAggregations(builder);
         addSorts(builder);
+        addFields(builder);
         return builder;
     }
 
     @Override
     public DeleteByQueryRequestBuilder deleteRequest() {
-        DeleteByQueryRequestBuilder builder = client.prepareDeleteByQuery(index);
+        DeleteByQueryRequestBuilder builder = client.prepareDeleteByQuery(indices);
         BoolFilterBuilder boolFilter = boolFilter();
         addQ(builder, boolFilter);
         addFilters(boolFilter);
@@ -205,9 +216,15 @@ public class DefaultQueryConverter implements QueryConverter {
 
     protected void registerDefaultConverters() {
         register("terms", new TermAggregationConverter());
+        register("geohash_grid_stats", new GeoHashGridStatsAggregationConverter());
+        register("geohash_grid", new GeoHashGridAggregationConverter());
+        register("filter", new FilterAggregationConverter());
+        register("range", new RangeAggregationConverter());
+        register("stats", new StatsAggregationConverter());
     }
 
     protected void registerDefaultFilterConverters() {
+        register("geo_bounding_box", new GeoBoundingBoxFilterConverter());
         register("geo_distance", new GeoDistanceFilterConverter());
         register("geo_shape", new GeoShapeFilterConverter());
         register("geo_polygon", new GeoPolygonFilterConverter());

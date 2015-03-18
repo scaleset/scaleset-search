@@ -17,6 +17,10 @@ public class Aggregation extends Extensible {
     public Aggregation() {
     }
 
+    public Aggregation(String name) {
+        this.name = name;
+    }
+
     public Aggregation(String name, String type) {
         this.name = name;
         this.type = type;
@@ -57,11 +61,18 @@ public class Aggregation extends Extensible {
         return type;
     }
 
-    public void setAggs(Map<String, Aggregation> aggs) {
+    public Aggregation aggs(Map<String, Aggregation> aggs) {
         this.aggs = aggs;
+        return this;
     }
 
-    public void setType(String type) {
+    public Aggregation type(String type) {
         this.type = type;
+        return this;
+    }
+
+    public Aggregation prop(String key, Object value) {
+        put(key, value);
+        return this;
     }
 }

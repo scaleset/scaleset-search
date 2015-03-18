@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.vividsolutions.jts.geom.Envelope;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,26 +18,31 @@ public class Query {
 
     private Map<String, Filter> filters = new HashMap<>();
 
+    private String[] fields;
+
     private String geoField;
 
     private int limit;
 
     private int offset = 0;
 
+    private Map<String, Object> headers = new HashMap<>();
+
     private String q;
 
-    private Sort[] sorts = new Sort[0];
+    private Sort[] sorts;
 
     /* For Jackson */
     public Query() {
     }
 
-    public Query(String q, Envelope bbox, String geoField, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters) {
+    public Query(String q, Envelope bbox, String geoField, List<String> fields, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters, Map<String, Object> headers) {
         this.q = q;
         this.offset = offset;
         this.limit = limit;
         this.bbox = bbox;
         this.geoField = geoField;
+        this.fields = fields.toArray(new String[fields.size()]);
         this.sorts = sorts.toArray(new Sort[sorts.size()]);
         if (aggs != null) {
             for (String name : aggs.keySet()) {
@@ -50,6 +56,9 @@ public class Query {
                 this.filters.put(name, new Filter(name, filter.getType(), filter.anyGetter()));
             }
             this.filters.putAll(filters);
+        }
+        if (headers != null) {
+            this.headers.putAll(headers);
         }
     }
 
@@ -77,12 +86,20 @@ public class Query {
         return offset;
     }
 
+    public Map<String, Object> getHeaders() {
+        return headers;
+    }
+
     public String getQ() {
         return q;
     }
 
     public Sort[] getSorts() {
         return sorts;
+    }
+
+    public String[] getFields() {
+        return fields;
     }
 
 }

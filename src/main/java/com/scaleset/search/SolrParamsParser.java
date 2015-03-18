@@ -10,6 +10,7 @@ public class SolrParamsParser {
         QueryBuilder qb = new QueryBuilder();
         qb.q(request.getParameter("q"));
         parsePaging(request, qb);
+        parseFields(request, qb);
         parseSortParams(request, qb);
         parseFacets(request, qb);
         return qb;
@@ -34,6 +35,16 @@ public class SolrParamsParser {
         }
         if ("count".equals(facet_sort)) {
             agg.put("sort", Sort.Type.Count);
+        }
+    }
+
+    void parseFields(HttpServletRequest request, QueryBuilder qb) {
+        String value = request.getParameter("fields");
+        if (value != null) {
+            String[] fields = value.split(",");
+            if (fields.length > 0) {
+                qb.field(fields);
+            }
         }
     }
 
