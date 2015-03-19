@@ -7,6 +7,7 @@ import com.scaleset.search.Sort;
 import com.scaleset.search.es.agg.*;
 import com.scaleset.search.es.filter.*;
 import com.vividsolutions.jts.geom.Envelope;
+
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
@@ -230,6 +231,8 @@ public class DefaultQueryConverter implements QueryConverter {
         register("geo_polygon", new GeoPolygonFilterConverter());
         register("query", new QueryFilterConverter());
         register("type", new TypeFilterConverter());
+        register("prefix", new PrefixFilterConverter());
+        register("term", new TermFilterConverter());
     }
 
 }

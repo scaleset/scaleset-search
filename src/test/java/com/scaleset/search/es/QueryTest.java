@@ -105,6 +105,9 @@ public class QueryTest extends Assert {
         AggregationResults aggResults = results.getAgg("magnitudeType");
         assertNotNull(aggResults);
         AggregationResults statsResults = results.getAgg("magStats");
+        Stats stats = statsResults.getStats();
+        assertNotNull(stats);
+        assertTrue(stats.getMax() > 0);
         assertNotNull(statsResults);
     }
 
