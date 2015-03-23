@@ -77,7 +77,17 @@ public class DefaultQueryConverter implements QueryConverter {
             for (Filter filter : filters.values()) {
                 FilterBuilder filterBuilder = converterFilter(filter);
                 if (filterBuilder != null) {
-                    boolFilter.must(filterBuilder);
+                	switch (filter.getClause()) {
+                	case SHOULD:
+                		boolFilter.should(filterBuilder);
+                		break;
+                	case MUST_NOT:
+                		boolFilter.mustNot(filterBuilder);
+                		break;
+                	case MUST:
+                	default :
+                		boolFilter.must(filterBuilder);                	
+                	}
                 }
             }
         }
