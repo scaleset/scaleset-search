@@ -8,19 +8,27 @@ import com.scaleset.utils.Extensible;
 
 import java.util.Map;
 
-@JsonPropertyOrder({"type", "name"})
+@JsonPropertyOrder({"type", "name", "clause"})
 public class Filter extends Extensible {
 
     private String name;
     private String type;
+    public enum Occur {MUST, MUST_NOT, SHOULD};
+    private Occur clause = Occur.MUST;
 
-    public Filter() {
+	public Filter() {
         super(new Coerce(new ObjectMapper().registerModule(new GeoJsonModule())));
     }
 
     public Filter(String name, String type) {
         this.name = name;
         this.type = type;
+    }
+    
+    public Filter(String name, String type, Occur clause) {
+        this.name = name;
+        this.type = type;
+        this.clause = clause;
     }
 
     public Filter(String name, String type, Map<String, Object> properties) {
@@ -47,4 +55,12 @@ public class Filter extends Extensible {
     public void setType(String type) {
         this.type = type;
     }
+    
+    public Occur getClause() {
+		return clause;
+	}
+
+	public void setClause(Occur clause) {
+		this.clause = clause;
+	}
 }
