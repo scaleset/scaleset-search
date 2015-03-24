@@ -8,15 +8,13 @@ import com.scaleset.utils.Extensible;
 
 import java.util.Map;
 
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanClause.Occur;
-
 @JsonPropertyOrder({"type", "name", "clause"})
 public class Filter extends Extensible {
 
     private String name;
     private String type;
-    private BooleanClause.Occur clause = Occur.MUST;
+    public enum Occur {MUST, MUST_NOT, SHOULD};
+    private Occur clause = Occur.MUST;
 
 	public Filter() {
         super(new Coerce(new ObjectMapper().registerModule(new GeoJsonModule())));
@@ -58,11 +56,11 @@ public class Filter extends Extensible {
         this.type = type;
     }
     
-    public BooleanClause.Occur getClause() {
+    public Occur getClause() {
 		return clause;
 	}
 
-	public void setClause(BooleanClause.Occur clause) {
+	public void setClause(Occur clause) {
 		this.clause = clause;
 	}
 }
