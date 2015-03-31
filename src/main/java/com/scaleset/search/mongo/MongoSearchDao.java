@@ -1,35 +1,22 @@
 package com.scaleset.search.mongo;
 
-import com.fasterxml.jackson.databind.Module;
-import com.mongodb.DB;
-import com.scaleset.geo.geojson.GeoJsonModule;
+import com.mongodb.*;
 import com.scaleset.search.AbstractSearchDao;
-import com.scaleset.search.GenericSearchDao;
 import com.scaleset.search.Query;
 import com.scaleset.search.Results;
-import org.jongo.Find;
-import org.jongo.Jongo;
-import org.jongo.MongoCollection;
-import org.jongo.marshall.jackson.JacksonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
 
-    private MongoCollection collection;
+    private DB db;
     private Class<T> typeClass;
+    private SearchMapping<T, K> searchMapping;
 
-    public MongoSearchDao(DB db, String collectionName, Class<T> typeClass, Module... modules) {
-        this.typeClass = typeClass;
-        JacksonMapper.Builder mapperBuilder = new JacksonMapper.Builder();
-        mapperBuilder.registerModule(new GeoJsonModule());
-        for (Module module : modules) {
-            mapperBuilder.registerModule(module);
-        }
-        mapperBuilder.withQueryFactory(new LuceneJongoQueryFactory());
-        Jongo jongo = new Jongo(db, mapperBuilder.build());
-        collection = jongo.getCollection(collectionName);
+    public MongoSearchDao(DB db, SearchMapping<T, K> searchMapping) {
+        this.db = db;
+        this.searchMapping = searchMapping;
     }
 
     @Override
@@ -38,17 +25,38 @@ public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
 
     @Override
     public Results<T> search(Query query) throws Exception {
-        Find find = collection
-                .find(query.getQ())
-                .limit(query.getLimit())
-                .skip(query.getOffset());
-        Results<T> results = new ResultsConverter<T, K>(query, find, typeClass).convert();
+        SchemaMapper schemaMapper = searchMapping.schemaMapperForQuery(query);
+        MongoQueryConverter<T> converter = new MongoQueryConverter<T>(schemaMapper);
+        DBCollection collection = db.getCollection(searchMapping.collectionForQuery(query));
+
+        DBObject mongoQ = null;
+
+        List<DBObject> filters = new ArrayList<>();
+        converter.addQ(query, filters);
+        converter.addFilters(query, filters);
+        if (filters.size() > 1) {
+
+            mongoQ = new BasicDBObject("$and", filters);
+        } else if (filters.size() == 1) {
+            mongoQ = filters.get(0);
+        } else {
+            mongoQ = new BasicDBObject();
+        }
+        DBCursor cursor = collection.find(mongoQ);
+
+        converter.addPaging(query, cursor);
+        converter.addSorts(query, cursor);
+        Results<T> results = new ResultsConverter<T, K>(query, cursor, searchMapping).convert();
         return results;
     }
 
     @Override
-    public T findById(K id) throws Exception {
-        return collection.findOne("_id:#", id).as(typeClass);
+    public T findById(K key) throws Exception {
+        String id = searchMapping.idForKey(key);
+        DBCollection collection = db.getCollection(searchMapping.collectionForKey(key));
+        DBObject object = collection.findOne(new BasicDBObject("_id", id));
+        T result = searchMapping.fromDocument(id, object);
+        return result;
     }
 
     @Override
@@ -63,22 +71,27 @@ public class MongoSearchDao<T, K> extends AbstractSearchDao<T, K> {
 
     @Override
     public void delete(T entity) throws Exception {
+        DBCollection collection = db.getCollection(searchMapping.collection(entity));
+
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void deleteByKey(K id) throws Exception {
-        collection.remove("_id: #", id);
+        DBCollection collection = db.getCollection(searchMapping.collectionForKey(id));
+        collection.remove(new BasicDBObject("_id", id));
     }
 
     @Override
     public void deleteByQuery(Query query) throws Exception {
-        collection.remove(query.getQ());
+        //collection.remove(query.getQ());
     }
 
     @Override
     public T save(T entity) throws Exception {
-        collection.save(entity);
+        DBCollection collection = db.getCollection(searchMapping.collection(entity));
+        DBObject object = searchMapping.toDocument(entity);
+        collection.save(object);
         return entity;
     }
 

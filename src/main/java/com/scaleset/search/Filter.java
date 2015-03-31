@@ -13,10 +13,13 @@ public class Filter extends Extensible {
 
     private String name;
     private String type;
-    public enum Occur {MUST, MUST_NOT, SHOULD};
+
+    public enum Occur {MUST, MUST_NOT, SHOULD}
+
+    ;
     private Occur clause = Occur.MUST;
 
-	public Filter() {
+    public Filter() {
         super(new Coerce(new ObjectMapper().registerModule(new GeoJsonModule())));
     }
 
@@ -24,7 +27,7 @@ public class Filter extends Extensible {
         this.name = name;
         this.type = type;
     }
-    
+
     public Filter(String name, String type, Occur clause) {
         this.name = name;
         this.type = type;
@@ -43,7 +46,6 @@ public class Filter extends Extensible {
         return name;
     }
 
-
     public String getType() {
         return type;
     }
@@ -55,12 +57,12 @@ public class Filter extends Extensible {
     public void setType(String type) {
         this.type = type;
     }
-    
-    public Occur getClause() {
-		return clause;
-	}
 
-	public void setClause(Occur clause) {
-		this.clause = clause;
-	}
+    public Occur getClause() {
+        return clause;
+    }
+
+    public void setClause(Occur clause) {
+        this.clause = clause;
+    }
 }

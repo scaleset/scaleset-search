@@ -4,6 +4,7 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.scaleset.search.Filter;
 import com.scaleset.search.Query;
 import com.scaleset.search.Sort;
 import org.apache.lucene.analysis.Analyzer;
@@ -44,6 +45,23 @@ public class MongoQueryConverter<T> {
         return result;
     }
 
+    public void addQ(Query query, List<DBObject> queries) {
+        String q = query.getQ();
+        if (q != null && !q.isEmpty()) {
+            queries.add(convertQ(q));
+        }
+    }
+
+    public void addFilters(Query query, List<DBObject> filters) {
+        for (Filter filter : query.getFilters().values()) {
+            if ("query".equals(filter.getType())) {
+                String q = filter.getString("query");
+                DBObject f = convertQ(q);
+                filters.add(f);
+            }
+        }
+    }
+
     public void addPaging(Query query, DBCursor cursor) {
         cursor.skip(query.getOffset());
         cursor.limit(query.getLimit());
@@ -66,7 +84,7 @@ public class MongoQueryConverter<T> {
                 orders.append(field, direction);
             }
         }
-        return new BasicDBObject("$orderBy", orders);
+        return orders;
     }
 
     protected DBObject handleQuery(org.apache.lucene.search.Query query) {
@@ -180,18 +198,19 @@ public class MongoQueryConverter<T> {
         return new BasicDBObject(field, new BasicDBObject("$ne", ("^" + pattern + "$")));
     }
 
-
     protected DBObject handleRangeQuery(TermRangeQuery rangeQuery) {
         String field = getField(rangeQuery.getField());
         Object lower = parse(field, rangeQuery.getLowerTerm());
         Object upper = parse(field, rangeQuery.getUpperTerm());
         DBObject result = new BasicDBObject();
+        DBObject expression = new BasicDBObject();
+        result.put(field, expression);
 
         if (upper != null) {
-            result.put(field, new BasicDBObject(rangeQuery.includesUpper() ? "$lte" : "$lt", upper));
+            expression.put(rangeQuery.includesUpper() ? "$lte" : "$lt", upper);
         }
         if (lower != null) {
-            result.put(field, new BasicDBObject(rangeQuery.includesLower() ? "$gte" : "$gt", upper));
+            expression.put(rangeQuery.includesLower() ? "$gte" : "$gt", lower);
         }
         return result;
     }
