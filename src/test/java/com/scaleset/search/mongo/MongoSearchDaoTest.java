@@ -1,18 +1,14 @@
 package com.scaleset.search.mongo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import org.jongo.marshall.jackson.oid.Id;
+import com.scaleset.search.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.net.UnknownHostException;
 
 public class MongoSearchDaoTest extends Assert {
 
@@ -21,7 +17,8 @@ public class MongoSearchDaoTest extends Assert {
     @Before
     public void before() throws Exception {
         DB db = new MongoClient().getDB("test");
-        mongoDao = new MongoSearchDao<>(db, "test", Item.class, new ItemIdModule());
+        SearchMapping<Item, String> mapping = new ItemSearchMapping();
+        mongoDao = new MongoSearchDao<>(db, mapping);
     }
 
     @After
@@ -37,6 +34,59 @@ public class MongoSearchDaoTest extends Assert {
         assertNotNull(item2);
     }
 
+    @Test
+    public void testSearch() throws Exception {
+        for (int i = 0; i < 10; ++i) {
+            mongoDao.save(new Item("" + i, "_" + i, i));
+        }
+        Query query = new QueryBuilder().q("number:[1 TO 7]").limit(5).offset(2).sort(new Sort("number", Sort.Direction.Descending)).build();
+        Results<Item> results = mongoDao.search(query);
+        assertNotNull(results);
+
+        // 7 items match (7,6,5,4,3,2,1)
+        assertEquals(7, (int) results.getTotalItems());
+        // 5 items returned (5,4,3,2,1)
+        assertEquals(5, results.getItems().size());
+        // 5 is first since offset = 2
+        assertEquals(5, results.getItems().get(0).getNumber());
+    }
+
+    @Test
+    public void testFilters() throws Exception {
+        for (int i = 0; i < 10; ++i) {
+            mongoDao.save(new Item("" + i, "_" + i, i));
+        }
+        QueryBuilder qb = new QueryBuilder("_id: (5 OR 6)");
+        Filter f1 = new Filter("5to10", "query");
+        f1.put("query", "number:[5 TO 9]");
+        Filter f2 = new Filter("_5to_9", "query");
+        f2.put("query", "value:[_5 TO _9]");
+        qb.filter(f1);
+        qb.filter(f2);
+        Results<Item> results = mongoDao.search(qb.build());
+        assertNotNull(results);
+        assertEquals(2, (int) results.getTotalItems());
+    }
+
+    static class ItemSearchMapping extends AbstractSearchMapping<Item, String> {
+
+        public ItemSearchMapping() {
+            super(Item.class, "items");
+            getObjectMapper().registerModule(new ItemIdModule());
+            ((SimpleSchemaMapper) getSchemaMapper()).withMapping("number", Integer.class);
+        }
+
+        @Override
+        public String id(Item item) throws Exception {
+            return item.getId();
+        }
+
+        @Override
+        public String idForKey(String key) throws Exception {
+            return key;
+        }
+    }
+
     static class ItemIdModule extends SimpleModule {
 
         public ItemIdModule() {
@@ -46,7 +96,6 @@ public class MongoSearchDaoTest extends Assert {
         @Override
         public void setupModule(SetupContext context) {
             context.setMixInAnnotations(Item.class, ItemMixIn.class);
-
         }
     }
 
@@ -55,7 +104,6 @@ public class MongoSearchDaoTest extends Assert {
         private String id;
         private String value;
         private int number;
-
 
         public Item() {
         }

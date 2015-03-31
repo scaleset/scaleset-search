@@ -1,10 +1,11 @@
 package com.scaleset.search.mongo;
 
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.scaleset.search.AggregationResults;
 import com.scaleset.search.Query;
 import com.scaleset.search.Results;
-import org.jongo.Find;
-import org.jongo.MongoCursor;
+import com.scaleset.utils.Coerce;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,23 +16,29 @@ import java.util.Map;
 public class ResultsConverter<T, K> {
 
     private Query query;
-    private Find find;
+    private DBCursor cursor;
     private int totalItems;
     private List<T> items = new ArrayList<>();
     private Map<String, AggregationResults> aggregationResults = new HashMap<>();
-    private Class<T> typeClass;
+    SearchMapping<T, K> searchMapping;
 
-    public ResultsConverter(Query query, Find find, Class<T> typeClass) {
+    public ResultsConverter(Query query, DBCursor cursor, SearchMapping<T, K> searchMapping) {
         this.query = query;
-        this.find = find;
-        this.typeClass = typeClass;
+        this.cursor = cursor;
+        this.searchMapping = searchMapping;
     }
 
     protected void initialize() throws IOException {
-        MongoCursor<T> cursor = null;
         totalItems = cursor.count();
         while (cursor.hasNext()) {
-            items.add(cursor.next());
+            DBObject obj = cursor.next();
+            String id = Coerce.toString(obj.get("_id"));
+            try {
+                T item = searchMapping.fromDocument(id, obj);
+                items.add(item);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         cursor.close();
     }
@@ -46,6 +53,5 @@ public class ResultsConverter<T, K> {
         Results<T> results = new Results<T>(query, aggregationResults, items, totalItems);
         return results;
     }
-
 
 }
