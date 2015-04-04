@@ -16,7 +16,6 @@ public class Filter extends Extensible {
 
     public enum Occur {MUST, MUST_NOT, SHOULD}
 
-    ;
     private Occur clause = Occur.MUST;
 
     public Filter() {

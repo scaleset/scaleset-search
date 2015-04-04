@@ -1,8 +1,7 @@
 package com.scaleset.search.es;
 
-import org.elasticsearch.search.SearchHit;
-
 import com.scaleset.search.Query;
+import org.elasticsearch.search.SearchHit;
 
 public interface SearchMapping<T, K> {
 

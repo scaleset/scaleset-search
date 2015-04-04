@@ -1,8 +1,5 @@
 package com.scaleset.search;
 
-import com.scaleset.search.Query;
-import com.scaleset.search.Results;
-
 import java.util.List;
 
 public interface GenericSearchDao<T, KEY> {

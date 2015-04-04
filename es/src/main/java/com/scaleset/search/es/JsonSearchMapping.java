@@ -1,6 +1,5 @@
 package com.scaleset.search.es;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JsonSearchMapping extends AbstractSearchMapping<ObjectNode, String> {

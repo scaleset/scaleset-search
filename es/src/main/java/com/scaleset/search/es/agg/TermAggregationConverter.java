@@ -5,8 +5,6 @@ import com.scaleset.search.AggregationResults;
 import com.scaleset.search.Bucket;
 import com.scaleset.search.es.QueryConverter;
 import com.scaleset.search.es.ResultsConverter;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;

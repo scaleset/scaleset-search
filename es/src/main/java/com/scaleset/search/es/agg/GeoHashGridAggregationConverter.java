@@ -5,19 +5,14 @@ import com.scaleset.search.AggregationResults;
 import com.scaleset.search.Bucket;
 import com.scaleset.search.es.QueryConverter;
 import com.scaleset.search.es.ResultsConverter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoHashGrid;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoHashGridBuilder;
-import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.elasticsearch.search.aggregations.AggregationBuilders.stats;
 
 public class GeoHashGridAggregationConverter extends AbstractCombinedConverter {
 

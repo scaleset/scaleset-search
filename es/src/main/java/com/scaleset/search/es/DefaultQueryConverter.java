@@ -7,14 +7,12 @@ import com.scaleset.search.Sort;
 import com.scaleset.search.es.agg.*;
 import com.scaleset.search.es.filter.*;
 import com.vividsolutions.jts.geom.Envelope;
-
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.QueryStringQueryBuilder.Operator;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -77,17 +75,17 @@ public class DefaultQueryConverter implements QueryConverter {
             for (Filter filter : filters.values()) {
                 FilterBuilder filterBuilder = converterFilter(filter);
                 if (filterBuilder != null) {
-                	switch (filter.getClause()) {
-                	case SHOULD:
-                		boolFilter.should(filterBuilder);
-                		break;
-                	case MUST_NOT:
-                		boolFilter.mustNot(filterBuilder);
-                		break;
-                	case MUST:
-                	default :
-                		boolFilter.must(filterBuilder);                	
-                	}
+                    switch (filter.getClause()) {
+                        case SHOULD:
+                            boolFilter.should(filterBuilder);
+                            break;
+                        case MUST_NOT:
+                            boolFilter.mustNot(filterBuilder);
+                            break;
+                        case MUST:
+                        default:
+                            boolFilter.must(filterBuilder);
+                    }
                 }
             }
         }

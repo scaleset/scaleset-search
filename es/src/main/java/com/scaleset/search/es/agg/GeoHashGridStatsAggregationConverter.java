@@ -5,7 +5,6 @@ import com.scaleset.search.AggregationResults;
 import com.scaleset.search.Bucket;
 import com.scaleset.search.es.QueryConverter;
 import com.scaleset.search.es.ResultsConverter;
-import com.scaleset.search.es.agg.AbstractCombinedConverter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import org.elasticsearch.search.aggregations.AggregationBuilder;

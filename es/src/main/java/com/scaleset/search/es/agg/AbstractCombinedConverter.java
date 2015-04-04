@@ -1,12 +1,9 @@
 package com.scaleset.search.es.agg;
 
 import com.scaleset.search.Aggregation;
-import com.scaleset.search.AggregationResults;
 import com.scaleset.search.es.QueryConverter;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.ValuesSourceAggregationBuilder;
 
 import java.util.Map;

@@ -27,7 +27,6 @@ public class Stats extends Extensible {
         this.stdDeviation = stdDeviation;
     }
 
-
     public Stats(long count, double sum, double min, double max, double mean) {
         this.count = count;
         this.sum = sum;

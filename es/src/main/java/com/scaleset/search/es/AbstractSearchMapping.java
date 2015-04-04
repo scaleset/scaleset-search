@@ -1,10 +1,5 @@
 package com.scaleset.search.es;
 
-import java.util.List;
-
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +7,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.scaleset.geo.geojson.GeoJsonModule;
 import com.scaleset.search.Query;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
+
+import java.util.List;
 
 public abstract class AbstractSearchMapping<T, K> implements SearchMapping<T, K> {
 

@@ -1,11 +1,6 @@
 package com.scaleset.search.es;
 
-import static org.elasticsearch.client.Requests.createIndexRequest;
-import static org.elasticsearch.client.Requests.deleteIndexRequest;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.scaleset.search.*;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -23,11 +18,11 @@ import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.scaleset.search.AbstractSearchDao;
-import com.scaleset.search.GenericSearchDao;
-import com.scaleset.search.Query;
-import com.scaleset.search.QueryBuilder;
-import com.scaleset.search.Results;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.elasticsearch.client.Requests.createIndexRequest;
+import static org.elasticsearch.client.Requests.deleteIndexRequest;
 
 public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements GenericSearchDao<T, K> {
 
@@ -170,7 +165,7 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
     public boolean mappingExists(String indexName, String typeName) {
         boolean result = false;
         try {
-            String[] indices = new String[] { indexName };
+            String[] indices = new String[]{indexName};
             TypesExistsResponse exists = client.admin().indices().typesExists(new TypesExistsRequest(indices, typeName)).actionGet();
             result = exists.isExists();
         } catch (Exception e) {
