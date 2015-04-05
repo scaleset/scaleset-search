@@ -1,5 +1,6 @@
 package com.scaleset.search.mongo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.DBObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,5 +34,14 @@ public class MongoQueryConverterTest extends Assert {
         assertNotNull(result);
         // could you do this w/o "$and" at the top-level?
         assertNotNull(result.get("$and"));
+    }
+
+    @Test
+    public void testProhibitBoolean() throws Exception {
+        MongoQueryConverter mapper = new MongoQueryConverter(new SimpleSchemaMapper("text"));
+        DBObject result = mapper.convertQ("-(Fred Flinstone)");
+        assertNotNull(result);
+        String q = new ObjectMapper().writeValueAsString(result);
+        assertEquals("{\"$and\":[{\"text\":{\"$ne\":\"Fred\"}},{\"text\":{\"$ne\":\"Flinstone\"}}]}", q);
     }
 }

@@ -87,12 +87,16 @@ public class MongoQueryConverter<T> {
         return orders;
     }
 
+    protected DBObject handleQuery(org.apache.lucene.search.Query query, boolean prohibited) {
+        return prohibited ? handleProhibitedQuery(query) : handleQuery(query);
+    }
+
     protected DBObject handleQuery(org.apache.lucene.search.Query query) {
         DBObject result = null;
         if (query instanceof TermQuery) {
             result = handleTermQuery((TermQuery) query);
         } else if (query instanceof BooleanQuery) {
-            result = handleBooleanQuery((BooleanQuery) query);
+            result = handleBooleanQuery((BooleanQuery) query, false);
         } else if (query instanceof TermRangeQuery) {
             result = handleRangeQuery((TermRangeQuery) query);
         } else if (query instanceof PrefixQuery) {
@@ -113,13 +117,19 @@ public class MongoQueryConverter<T> {
             result = handleProhibitedTermQuery((TermQuery) query);
         } else if (query instanceof WildcardQuery) {
             result = handleProhibitedWildcardQuery((WildcardQuery) query);
+        } else if (query instanceof BooleanQuery) {
+            result = handleBooleanQuery((BooleanQuery) query, true);
         } else {
             throw new RuntimeException("Unsupported query: " + query);
         }
         return result;
     }
 
-    protected DBObject handleBooleanQuery(BooleanQuery boolQuery) {
+    protected DBObject handleBooleanQuery(BooleanQuery boolQuery, boolean prohibited) {
+        // De Morgan's Law:
+        // "not (A and B)" is the same as "(not A) or (not B)"
+        // "not (A or B)" is the same as "(not A) and (not B)".
+        //
         DBObject result = null;
         List<BooleanClause> clauses = boolQuery.clauses();
         int nClauses = clauses.size();
@@ -137,21 +147,23 @@ public class MongoQueryConverter<T> {
             } else {
                 ++orCount;
             }
-            if (clause.isProhibited()) {
-                children.add(handleProhibitedQuery(clause.getQuery()));
-            } else {
-                children.add(handleQuery(clause.getQuery()));
-            }
+            // inverse if our boolean clause is prohibited as a whole
+            boolean prohibit = prohibited ? !clause.isProhibited() : clause.isProhibited();
+            children.add(handleQuery(clause.getQuery(), prohibit));
         }
         if (andCount > 0 && orCount > 0) {
             throw new RuntimeException("Mixed boolean clauses not supported!");
         }
-        if (andCount > 1 || notCount > 1) {
-            result = new BasicDBObject("$and", children);
-        } else if (orCount > 1) {
-            result = new BasicDBObject("$or", children);
-        } else if (andCount == 1 || orCount == 1 || nClauses == 1) {
+        if (children.size() == 1) {
             result = (DBObject) children.get(0);
+        } else {
+            boolean conjunction = (andCount > 1 || notCount > 1);
+            // inverse is out boolean clause is prohibited as a whole
+            if (prohibited) {
+                conjunction = !conjunction;
+            }
+            String operator = conjunction ? "$and" : "$or";
+            result = new BasicDBObject(operator, children);
         }
         return result;
     }
