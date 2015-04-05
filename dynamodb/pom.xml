@@ -3,9 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.scaleset</groupId>
+    <parent>
+        <groupId>com.scaleset</groupId>
+        <artifactId>scaleset-search</artifactId>
+        <version>0.17.0</version>
+    </parent>
+
     <artifactId>scaleset-search-dynamodb</artifactId>
-    <version>0.17.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>scaleset-search-dynamodb</name>
     <description>Java object model for representing query requests in REST protocols.</description>
