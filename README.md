@@ -12,8 +12,8 @@ Quick Start
 ```xml
 <dependency>
     <groupId>com.scaleset</groupId>
-    <artifactId>scaleset-search</artifactId>
-    <version>0.16.0</version>
+    <artifactId>scaleset-search-api</artifactId>
+    <version>0.17.0</version>
 </dependency>
 ```
 
