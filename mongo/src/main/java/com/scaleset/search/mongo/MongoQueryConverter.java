@@ -230,9 +230,13 @@ public class MongoQueryConverter<T> {
     protected DBObject handlePhraseQuery(PhraseQuery phraseQuery) {
         Term[] terms = phraseQuery.getTerms();
         String field = getField(phraseQuery.getTerms()[0].field());
-        String phrase = "";
+        String phrase = null;
         for (Term term : terms) {
-            phrase += " " + term.text();
+            if (phrase == null) {
+                phrase = term.text();
+            } else {
+                phrase += " " + term.text();
+            }
         }
         String value = parse(field, phrase) + "";
         Pattern pattern = Pattern.compile(Matcher.quoteReplacement(value), Pattern.CASE_INSENSITIVE);

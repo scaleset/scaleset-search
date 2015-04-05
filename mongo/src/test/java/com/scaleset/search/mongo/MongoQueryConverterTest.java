@@ -41,7 +41,19 @@ public class MongoQueryConverterTest extends Assert {
         MongoQueryConverter mapper = new MongoQueryConverter(new SimpleSchemaMapper("text"));
         DBObject result = mapper.convertQ("-(Fred Flinstone)");
         assertNotNull(result);
-        String q = new ObjectMapper().writeValueAsString(result);
+        String q = toJSON(result);
         assertEquals("{\"$and\":[{\"text\":{\"$ne\":\"Fred\"}},{\"text\":{\"$ne\":\"Flinstone\"}}]}", q);
+    }
+
+    @Test
+    public void testPhraseQuery() throws Exception {
+        MongoQueryConverter mapper = new MongoQueryConverter(new SimpleSchemaMapper("text"));
+        DBObject result = mapper.convertQ("name:\"Fred Flinstone\"");
+        String q = toJSON(result);
+        assertEquals("{\"name\":\"Fred Flinstone\"}", q);
+    }
+
+    String toJSON(Object object) throws Exception {
+        return new ObjectMapper().writeValueAsString(object);
     }
 }
