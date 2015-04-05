@@ -56,4 +56,17 @@ public class MongoQueryConverterTest extends Assert {
     String toJSON(Object object) throws Exception {
         return new ObjectMapper().writeValueAsString(object);
     }
+
+    @Test
+    public void testMultiFieldAlias() throws Exception {
+        MongoQueryConverter mapper = new MongoQueryConverter(
+                new SimpleSchemaMapper("name").withAlias("name", "firstName", "lastName"));
+        DBObject result = mapper.convertQ("Fred");
+        String q = toJSON(result);
+        // Either firstName or lastName = 'Fred'
+        assertEquals("{\"$or\":[{\"firstName\":\"Fred\"},{\"lastName\":\"Fred\"}]}", q);
+        String q2 = toJSON(mapper.convertQ("-Fred"));
+        // Neither firstName nor lastName = 'Fred'
+        assertEquals("{\"$and\":[{\"firstName\":{\"$ne\":\"Fred\"}},{\"lastName\":{\"$ne\":\"Fred\"}}]}", q2);
+    }
 }

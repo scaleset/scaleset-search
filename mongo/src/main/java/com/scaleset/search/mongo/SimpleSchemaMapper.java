@@ -3,12 +3,12 @@ package com.scaleset.search.mongo;
 import com.scaleset.utils.Coerce;
 import org.apache.lucene.util.BytesRef;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SimpleSchemaMapper implements SchemaMapper {
 
     private String defaultField;
+    private Map<String, List<String>> aliases = new HashMap<>();
 
     private Map<String, Class<?>> simpleSchema = new HashMap<>();
 
@@ -22,8 +22,12 @@ public class SimpleSchemaMapper implements SchemaMapper {
     }
 
     @Override
-    public String mapField(String field) {
-        return field;
+    public List<String> mapField(String field) {
+        List<String> result = aliases.get(field);
+        if (result == null || result.isEmpty()) {
+            result = Collections.singletonList(field);
+        }
+        return result;
     }
 
     @Override
@@ -40,6 +44,11 @@ public class SimpleSchemaMapper implements SchemaMapper {
 
     public SimpleSchemaMapper withMapping(String field, Class<?> type) {
         simpleSchema.put(field, type);
+        return this;
+    }
+
+    public SimpleSchemaMapper withAlias(String field, String... fields) {
+        aliases.put(field, Arrays.asList(fields));
         return this;
     }
 }

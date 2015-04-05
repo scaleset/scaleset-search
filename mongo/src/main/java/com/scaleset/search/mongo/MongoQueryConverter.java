@@ -15,6 +15,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.Version;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -76,12 +77,14 @@ public class MongoQueryConverter<T> {
         BasicDBObject orders = new BasicDBObject();
         if (sorts != null && sorts.length > 0) {
             for (Sort sort : sorts) {
-                String field = getField(sort.getField());
-                int direction = 1;
-                if (Sort.Direction.Descending == sort.getDirection()) {
-                    direction = -1;
+                List<String> fields = getField(sort.getField());
+                for (String field : fields) {
+                    int direction = 1;
+                    if (Sort.Direction.Descending == sort.getDirection()) {
+                        direction = -1;
+                    }
+                    orders.append(field, direction);
                 }
-                orders.append(field, direction);
             }
         }
         return orders;
@@ -169,67 +172,89 @@ public class MongoQueryConverter<T> {
     }
 
     protected DBObject handleTermQuery(TermQuery termQuery) {
+        List<DBObject> results = new ArrayList<>();
         Term term = termQuery.getTerm();
-        String field = getField(term.field());
-        Object value = parse(field, term.text());
-        return new BasicDBObject(field, value);
+        List<String> fields = getField(term.field());
+        for (String field : fields) {
+            Object value = parse(field, term.text());
+            results.add(new BasicDBObject(field, value));
+        }
+        return join("$or", results);
     }
 
     protected DBObject handleProhibitedTermQuery(TermQuery termQuery) {
+        List<DBObject> results = new ArrayList<>();
         Term term = termQuery.getTerm();
-        String field = getField(term.field());
-        Object value = parse(field, term.text());
-        return new BasicDBObject(field, new BasicDBObject("$ne", value));
+        List<String> fields = getField(term.field());
+        for (String field : fields) {
+            Object value = parse(field, term.text());
+            results.add(new BasicDBObject(field, new BasicDBObject("$ne", value)));
+        }
+        return join("$and", results);
     }
 
     protected DBObject handlePrefixQuery(PrefixQuery prefixQuery) {
+        List<DBObject> results = new ArrayList<>();
         Term term = prefixQuery.getPrefix();
-        String field = getField(term.field());
-        Object value = parse(field, term.text());
-        Pattern pattern = Pattern.compile("^" + Matcher.quoteReplacement(value.toString()) + ".*", Pattern.CASE_INSENSITIVE);
-        return new BasicDBObject(field, pattern);
+        List<String> fields = getField(term.field());
+        for (String field : fields) {
+            Object value = parse(field, term.text());
+            Pattern pattern = Pattern.compile("^" + Matcher.quoteReplacement(value.toString()) + ".*", Pattern.CASE_INSENSITIVE);
+            results.add(new BasicDBObject(field, pattern));
+        }
+        return join("$or", results);
     }
 
     protected DBObject handleWildcardQuery(WildcardQuery wildcardQuery) {
         Term term = wildcardQuery.getTerm();
-        String field = getField(term.field());
-        String value = term.text().replace("?", "_QUESTION_MARK_").replace("*", "_STAR_");
-        value = Matcher.quoteReplacement(value);
-        value = value.replace("_QUESTION_MARK_", ".?").replace("_STAR_", ".*");
-        Pattern pattern = Pattern.compile("^" + Matcher.quoteReplacement(value) + "$", Pattern.CASE_INSENSITIVE);
-        return new BasicDBObject(field, pattern);
+        List<DBObject> results = new ArrayList<>();
+        List<String> fields = getField(term.field());
+        for (String field : fields) {
+            String value = term.text().replace("?", "_QUESTION_MARK_").replace("*", "_STAR_");
+            value = Matcher.quoteReplacement(value);
+            value = value.replace("_QUESTION_MARK_", ".?").replace("_STAR_", ".*");
+            Pattern pattern = Pattern.compile("^" + Matcher.quoteReplacement(value) + "$", Pattern.CASE_INSENSITIVE);
+            results.add(new BasicDBObject(field, pattern));
+        }
+        return join("$or", results);
     }
 
     protected DBObject handleProhibitedWildcardQuery(WildcardQuery wildcardQuery) {
         Term term = wildcardQuery.getTerm();
-        String field = getField(term.field());
-        String pattern = term.text().replace("?", "_QUESTION_MARK_").replace("*", "_STAR_");
-        // escape in case pattern contains some regex special characters
-        pattern = Matcher.quoteReplacement(pattern);
-        pattern = pattern.replace("_QUESTION_MARK_", ".?").replace("_STAR_", ".*");
-        return new BasicDBObject(field, new BasicDBObject("$ne", ("^" + pattern + "$")));
+        List<DBObject> results = new ArrayList<>();
+        List<String> fields = getField(term.field());
+        for (String field : fields) {
+            String pattern = term.text().replace("?", "_QUESTION_MARK_").replace("*", "_STAR_");
+            // escape in case pattern contains some regex special characters
+            pattern = Matcher.quoteReplacement(pattern);
+            pattern = pattern.replace("_QUESTION_MARK_", ".?").replace("_STAR_", ".*");
+            results.add(new BasicDBObject(field, new BasicDBObject("$ne", ("^" + pattern + "$"))));
+        }
+        return join("$and", results);
     }
 
     protected DBObject handleRangeQuery(TermRangeQuery rangeQuery) {
-        String field = getField(rangeQuery.getField());
-        Object lower = parse(field, rangeQuery.getLowerTerm());
-        Object upper = parse(field, rangeQuery.getUpperTerm());
-        DBObject result = new BasicDBObject();
-        DBObject expression = new BasicDBObject();
-        result.put(field, expression);
+        List<DBObject> results = new ArrayList<>();
+        List<String> fields = getField(rangeQuery.getField());
+        for (String field : fields) {
+            Object lower = parse(field, rangeQuery.getLowerTerm());
+            Object upper = parse(field, rangeQuery.getUpperTerm());
+            DBObject expression = new BasicDBObject();
 
-        if (upper != null) {
-            expression.put(rangeQuery.includesUpper() ? "$lte" : "$lt", upper);
+            if (upper != null) {
+                expression.put(rangeQuery.includesUpper() ? "$lte" : "$lt", upper);
+            }
+            if (lower != null) {
+                expression.put(rangeQuery.includesLower() ? "$gte" : "$gt", lower);
+            }
+            results.add(new BasicDBObject(field, expression));
         }
-        if (lower != null) {
-            expression.put(rangeQuery.includesLower() ? "$gte" : "$gt", lower);
-        }
-        return result;
+        return join("$or", results);
     }
 
     protected DBObject handlePhraseQuery(PhraseQuery phraseQuery) {
         Term[] terms = phraseQuery.getTerms();
-        String field = getField(phraseQuery.getTerms()[0].field());
+        List<String> fields = getField(phraseQuery.getTerms()[0].field());
         String phrase = null;
         for (Term term : terms) {
             if (phrase == null) {
@@ -238,16 +263,24 @@ public class MongoQueryConverter<T> {
                 phrase += " " + term.text();
             }
         }
-        String value = parse(field, phrase) + "";
-        Pattern pattern = Pattern.compile(Matcher.quoteReplacement(value), Pattern.CASE_INSENSITIVE);
-        return new BasicDBObject(field, pattern);
+        List<DBObject> results = new ArrayList<>();
+        for (String field : fields) {
+            String value = parse(field, phrase) + "";
+            Pattern pattern = Pattern.compile(Matcher.quoteReplacement(value), Pattern.CASE_INSENSITIVE);
+            results.add(new BasicDBObject(field, pattern));
+        }
+        return join("$or", results);
     }
 
-    protected String getField(String field) {
-        if ("#".equals(field)) {
-            Object param = params.next();
-            field = param.toString();
+    DBObject join(String operator, List<DBObject> items) {
+        if (items.size() == 1) {
+            return items.get(0);
+        } else {
+            return new BasicDBObject(operator, items);
         }
+    }
+
+    protected List<String> getField(String field) {
         return schemaMapper.mapField(field);
     }
 
