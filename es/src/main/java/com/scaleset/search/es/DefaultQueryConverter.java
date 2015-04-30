@@ -6,6 +6,7 @@ import com.scaleset.search.Query;
 import com.scaleset.search.Sort;
 import com.scaleset.search.es.agg.*;
 import com.scaleset.search.es.filter.*;
+import com.scaleset.utils.Coerce;
 import com.vividsolutions.jts.geom.Envelope;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -122,6 +123,10 @@ public class DefaultQueryConverter implements QueryConverter {
         int offset = query.getOffset();
         builder.setSize(limit);
         builder.setFrom(offset);
+        String keepAlive = Coerce.toString(query.getHeaders().get("keepAlive"), null);
+        if (keepAlive != null) {
+            builder.setScroll(keepAlive);
+        }
     }
 
     protected void addQ(SearchRequestBuilder builder, BoolFilterBuilder boolFilter) {

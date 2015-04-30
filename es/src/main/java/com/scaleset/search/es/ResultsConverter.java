@@ -80,6 +80,9 @@ public class ResultsConverter<T, K> {
 
     protected void addHeaders() {
         headers.put("took", response.getTookInMillis());
+        if (response.getScrollId() != null) {
+            headers.put("scrollId", response.getScrollId());
+        }
     }
 
     public Results<T> convert() throws Exception {

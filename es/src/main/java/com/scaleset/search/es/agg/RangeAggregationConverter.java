@@ -32,11 +32,11 @@ public class RangeAggregationConverter extends AbstractCombinedConverter {
             for (JsonNode range : ranges) {
                 JsonNode from = range.path("from");
                 JsonNode to = range.path("to");
-                if (from.isDouble() && to.isDouble()) {
+                if (from.isNumber() && to.isNumber()) {
                     result.addRange(from.asDouble(), to.asDouble());
-                } else if (from.isDouble()) {
+                } else if (from.isNumber()) {
                     result.addUnboundedFrom(from.asDouble());
-                } else if (to.isDouble()) {
+                } else if (to.isNumber()) {
                     result.addUnboundedTo(to.asDouble());
                 }
             }
