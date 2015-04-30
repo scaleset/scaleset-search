@@ -33,6 +33,7 @@ public class QueryBuilder {
             this.filters(prototype.getFilters());
             this.sort(prototype.getSorts());
             this.field(prototype.getFields());
+            this.headers(prototype.getHeaders());
         }
     }
 
@@ -163,6 +164,11 @@ public class QueryBuilder {
                 this.fields.add(field);
             }
         }
+        return this;
+    }
+
+    public QueryBuilder headers(Map<String, Object> headers) {
+        this.headers.putAll(headers);
         return this;
     }
 

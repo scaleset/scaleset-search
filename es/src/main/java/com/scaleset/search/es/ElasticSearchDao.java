@@ -113,6 +113,14 @@ public class ElasticSearchDao<T, K> extends AbstractSearchDao<T, K> implements G
         return result;
     }
 
+    public Results<T> scroll(String scrollId, String keepAlive, int size) throws Exception {
+        SearchResponse response = client.prepareSearchScroll(scrollId).setScroll(keepAlive).execute().actionGet();
+        Query query = new QueryBuilder().limit(size).header("keepAlive", keepAlive).header("scrollId", scrollId).build();
+        Results<T> results = createResultsConverter(query, response, mapping).convert();
+        return results;
+    }
+
+
     public Results<T> search(Query query) throws Exception {
         Query updated = new QueryBuilder(query).build();
         SearchRequestBuilder srb = convert(updated);

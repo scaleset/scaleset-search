@@ -6,6 +6,7 @@ import com.scaleset.geo.FeatureCollection;
 import com.scaleset.geo.FeatureCollectionHandler;
 import com.scaleset.geo.geojson.GeoJsonParser;
 import com.scaleset.search.*;
+import com.scaleset.utils.Coerce;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -66,6 +67,7 @@ public class QueryTest extends Assert {
         }
         featureDao.flush();
     }
+
     @Test
     public void sanityTest() {
         assertNotNull(client);
@@ -87,6 +89,22 @@ public class QueryTest extends Assert {
         Query query = queryBuilder.build();
         Results<Feature> results = featureDao.search(query);
         assertEquals(46, (long) results.getTotalItems());
+    }
+
+    @Test
+    public void testScrolling() throws Exception {
+        QueryBuilder queryBuilder = new QueryBuilder().limit(1).header("scroll", "1m");
+        Query query = queryBuilder.build();
+        Results<Feature> results = featureDao.search(query);
+        int retrieved = 0;
+        while (results.getItems().size() > 0) {
+            retrieved += results.getItems().size();
+            String scrollId = Coerce.toString(results.getHeaders().get("scrollId"));
+            results = featureDao.scroll(scrollId, "60s", 1);
+            System.out.println("returned: " + results.getItems().size());
+        }
+        assertEquals(46, (long) results.getTotalItems());
+        assertEquals(46, (long) retrieved);
     }
 
     @Test
