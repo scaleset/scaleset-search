@@ -93,7 +93,7 @@ public class QueryTest extends Assert {
 
     @Test
     public void testScrolling() throws Exception {
-        QueryBuilder queryBuilder = new QueryBuilder().limit(1).header("scroll", "1m");
+        QueryBuilder queryBuilder = new QueryBuilder().limit(1).header("keepAlive", "1m");
         Query query = queryBuilder.build();
         Results<Feature> results = featureDao.search(query);
         int retrieved = 0;
