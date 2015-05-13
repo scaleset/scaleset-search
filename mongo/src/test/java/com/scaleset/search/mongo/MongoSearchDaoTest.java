@@ -1,6 +1,7 @@
 package com.scaleset.search.mongo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
@@ -69,21 +70,11 @@ public class MongoSearchDaoTest extends Assert {
     }
 
     static class ItemSearchMapping extends AbstractSearchMapping<Item, String> {
-
         public ItemSearchMapping() {
-            super(Item.class, "items");
-            getObjectMapper().registerModule(new ItemIdModule());
-            ((SimpleSchemaMapper) getSchemaMapper()).withMapping("number", Integer.class);
-        }
-
-        @Override
-        public String id(Item item) throws Exception {
-            return item.getId();
-        }
-
-        @Override
-        public String idForKey(String key) throws Exception {
-            return key;
+            super("items");
+            objectMapper(new ObjectMapper().registerModule(new ItemIdModule()));
+            schemaMapper(new SimpleSchemaMapper("text").withMapping("number", Integer.class));
+            idMapper(obj -> obj.getId());
         }
     }
 
