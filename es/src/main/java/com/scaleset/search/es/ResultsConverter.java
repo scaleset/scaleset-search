@@ -111,6 +111,7 @@ public class ResultsConverter<T, K> {
         register("stats", new StatsAggregationConverter());
         register("geohash_grid", new GeoHashGridAggregationConverter());
         register("geohash_grid_stats", new GeoHashGridStatsAggregationConverter());
+        register("date_histogram", new DateHistogramAggregationConverter());
     }
 
 }
