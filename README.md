@@ -13,7 +13,7 @@ Quick Start
 <dependency>
     <groupId>com.scaleset</groupId>
     <artifactId>scaleset-search-api</artifactId>
-    <version>0.21.0</version>
+    <version>0.20.0</version>
 </dependency>
 ```
 
