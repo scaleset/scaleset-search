@@ -235,6 +235,7 @@ public class DefaultQueryConverter implements QueryConverter {
         register("filter", new FilterAggregationConverter());
         register("range", new RangeAggregationConverter());
         register("stats", new StatsAggregationConverter());
+        register("date_histogram", new DateHistogramAggregationConverter());
     }
 
     protected void registerDefaultFilterConverters() {
