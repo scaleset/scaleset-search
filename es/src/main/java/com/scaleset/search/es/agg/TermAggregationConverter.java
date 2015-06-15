@@ -3,8 +3,10 @@ package com.scaleset.search.es.agg;
 import com.scaleset.search.Aggregation;
 import com.scaleset.search.AggregationResults;
 import com.scaleset.search.Bucket;
+import com.scaleset.search.Sort;
 import com.scaleset.search.es.QueryConverter;
 import com.scaleset.search.es.ResultsConverter;
+import com.scaleset.utils.Coerce;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -20,19 +22,6 @@ public class TermAggregationConverter extends AbstractCombinedConverter {
     @Override
     public AggregationBuilder convert(QueryConverter queryConverter, Aggregation aggregation) {
 
-        /*
-        Terms.Order order = Terms.Order.count(false);
-        Sort sort = aggregation.getSort();
-        if (sort != null) {
-            boolean asc = Sort.Direction.Ascending.equals(sort.getDirection());
-            if (Sort.Type.Count.equals(sort.getType())) {
-                order = Terms.Order.count(asc);
-            } else if (Sort.Type.Lexical.equals(sort.getType())) {
-                order = Terms.Order.term(asc);
-            }
-        }
-        */
-
         TermsBuilder result = terms(getName(aggregation));
 
         addField(aggregation, result);
@@ -42,7 +31,19 @@ public class TermAggregationConverter extends AbstractCombinedConverter {
         if (limit != null) {
             result.size(limit);
         }
+
         // todo - add ordering
+        Terms.Order order = Terms.Order.count(false);
+        Sort sort = Coerce.to(aggregation.get("order"), Sort.class, null);
+        if (sort != null) {
+            boolean asc = Sort.Direction.Ascending.equals(sort.getDirection());
+            if (Sort.Type.Count.equals(sort.getType())) {
+                order = Terms.Order.count(asc);
+            } else if (Sort.Type.Lexical.equals(sort.getType())) {
+                order = Terms.Order.term(asc);
+            }
+        }
+        result.order(order);
 
         addSubAggs(queryConverter, aggregation, result);
         return result;
