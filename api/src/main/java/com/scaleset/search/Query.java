@@ -19,6 +19,8 @@ public class Query {
 
     private String[] fields;
 
+    private String fieldSet;
+
     private String geoField;
 
     private int limit;
@@ -35,13 +37,14 @@ public class Query {
     public Query() {
     }
 
-    public Query(String q, Envelope bbox, String geoField, List<String> fields, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters, Map<String, Object> headers) {
+    public Query(String q, Envelope bbox, String geoField, String fieldSet, List<String> fields, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters, Map<String, Object> headers) {
         this.q = q;
         this.offset = offset;
         this.limit = limit;
         this.bbox = bbox;
         this.geoField = geoField;
         this.fields = fields.toArray(new String[fields.size()]);
+        this.fieldSet = fieldSet;
         this.sorts = sorts.toArray(new Sort[sorts.size()]);
         if (aggs != null) {
             for (String name : aggs.keySet()) {
@@ -69,12 +72,24 @@ public class Query {
         return bbox;
     }
 
+    public String getFieldSet() {
+        return fieldSet;
+    }
+
+    public String[] getFields() {
+        return fields;
+    }
+
     public Map<String, Filter> getFilters() {
         return filters;
     }
 
     public String getGeoField() {
         return geoField;
+    }
+
+    public Map<String, Object> getHeaders() {
+        return headers;
     }
 
     public int getLimit() {
@@ -85,10 +100,6 @@ public class Query {
         return offset;
     }
 
-    public Map<String, Object> getHeaders() {
-        return headers;
-    }
-
     public String getQ() {
         return q;
     }
@@ -96,9 +107,4 @@ public class Query {
     public Sort[] getSorts() {
         return sorts;
     }
-
-    public String[] getFields() {
-        return fields;
-    }
-
 }

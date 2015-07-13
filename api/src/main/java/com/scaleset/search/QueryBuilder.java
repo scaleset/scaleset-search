@@ -15,6 +15,7 @@ public class QueryBuilder {
     private String geoField;
     private Map<String, Filter> filters = new HashMap<>();
     private int offset = 0;
+    private String fieldSet;
     private List<String> fields = new ArrayList<>();
     private Integer limit = 10;
     private String q = "";
@@ -29,6 +30,7 @@ public class QueryBuilder {
             this.q = prototype.getQ();
             this.offset = prototype.getOffset();
             this.limit = prototype.getLimit();
+            this.fieldSet = prototype.getFieldSet();
             this.aggregations(prototype.getAggs());
             this.filters(prototype.getFilters());
             this.sort(prototype.getSorts());
@@ -63,13 +65,6 @@ public class QueryBuilder {
         return this;
     }
 
-    protected QueryBuilder filters(Map<String, Filter> filters) {
-        for (String name : filters.keySet()) {
-            this.filters.put(name, filters.get(name));
-        }
-        return this;
-    }
-
     public QueryBuilder aggregations(Iterable<Aggregation> aggs) {
         if (aggs != null) {
             for (Aggregation aggregation : aggs) {
@@ -100,7 +95,7 @@ public class QueryBuilder {
     }
 
     public Query build() {
-        Query result = new Query(q, bbox, geoField, fields, offset, limit, sorts, aggregations, filters, headers);
+        Query result = new Query(q, bbox, geoField, fieldSet, fields, offset, limit, sorts, aggregations, filters, headers);
         return result;
     }
 
@@ -114,6 +109,20 @@ public class QueryBuilder {
         return this;
     }
 
+    public QueryBuilder field(String... fields) {
+        if (fields != null) {
+            for (String field : fields) {
+                this.fields.add(field);
+            }
+        }
+        return this;
+    }
+
+    public QueryBuilder fieldSet(String fieldSet) {
+        this.fieldSet = fieldSet;
+        return this;
+    }
+
     public QueryBuilder filter(Filter... filters) {
         if (filters != null) {
             for (Filter filter : filters) {
@@ -123,8 +132,25 @@ public class QueryBuilder {
         return this;
     }
 
+    protected QueryBuilder filters(Map<String, Filter> filters) {
+        for (String name : filters.keySet()) {
+            this.filters.put(name, filters.get(name));
+        }
+        return this;
+    }
+
     public QueryBuilder geoField(String geoField) {
         this.geoField = geoField;
+        return this;
+    }
+
+    public QueryBuilder header(String name, Object value) {
+        headers.put(name, value);
+        return this;
+    }
+
+    public QueryBuilder headers(Map<String, Object> headers) {
+        this.headers.putAll(headers);
         return this;
     }
 
@@ -155,25 +181,6 @@ public class QueryBuilder {
                 this.sorts.add(sort);
             }
         }
-        return this;
-    }
-
-    public QueryBuilder field(String... fields) {
-        if (fields != null) {
-            for (String field : fields) {
-                this.fields.add(field);
-            }
-        }
-        return this;
-    }
-
-    public QueryBuilder headers(Map<String, Object> headers) {
-        this.headers.putAll(headers);
-        return this;
-    }
-
-    public QueryBuilder header(String name, Object value) {
-        headers.put(name, value);
         return this;
     }
 
