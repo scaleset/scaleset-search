@@ -13,7 +13,12 @@ public class SolrParamsParser {
         parseFields(request, qb);
         parseSortParams(request, qb);
         parseFacets(request, qb);
+        parseEcho(request, qb);
         return qb;
+    }
+
+    private void parseEcho(HttpServletRequest request, QueryBuilder qb) {
+        qb.echo(Coerce.toBoolean(request.getParameter("echo"), false));
     }
 
     void parseFacetMinCount(HttpServletRequest request, Aggregation fb) {
@@ -45,6 +50,10 @@ public class SolrParamsParser {
             if (fields.length > 0) {
                 qb.field(fields);
             }
+        }
+        String fieldSet = request.getParameter("fieldSet");
+        if (fieldSet != null) {
+            qb.fieldSet(fieldSet);
         }
     }
 

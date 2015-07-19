@@ -19,17 +19,18 @@ public class Results<T> {
     private Integer totalItems = 0;
     private Envelope bbox;
     private Map<String, Object> headers = new HashMap<String, Object>();
+    private List<String> fields = new ArrayList<>();
 
     /* For Jackson */
     protected Results() {
     }
 
     public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems) {
-        this(query, aggs, items, totalItems, null, null);
+        this(query, aggs, items, totalItems, null, null, null);
     }
 
-    public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems, Envelope bbox, Map<String, Object> headers) {
-        this.query = query;
+    public Results(Query query, Map<String, AggregationResults> aggs, List<T> items, Integer totalItems, Envelope bbox, Map<String, Object> headers, List<String> fields) {
+        this.query = (query != null && query.getEcho()) ? query : null;
         if (aggs != null) {
             this.aggs.putAll(aggs);
         }
@@ -39,15 +40,14 @@ public class Results<T> {
         if (headers != null) {
             this.headers.putAll(headers);
         }
+        if (fields != null) {
+            this.fields.addAll(fields);
+        }
     }
 
     public Results(Query query, List<T> items) {
         this.query = query;
         this.items.addAll(items);
-    }
-
-    public Envelope getBbox() {
-        return bbox;
     }
 
     public AggregationResults getAgg(String name) {
@@ -56,6 +56,14 @@ public class Results<T> {
 
     public Map<String, AggregationResults> getAggs() {
         return aggs;
+    }
+
+    public Envelope getBbox() {
+        return bbox;
+    }
+
+    public List<String> getFields() {
+        return fields;
     }
 
     public Map<String, Object> getHeaders() {
@@ -74,4 +82,7 @@ public class Results<T> {
         return totalItems;
     }
 
+    public void setFields(List<String> fields) {
+        this.fields = fields;
+    }
 }
