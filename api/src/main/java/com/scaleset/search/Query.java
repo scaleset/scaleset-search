@@ -15,6 +15,8 @@ public class Query {
 
     private Envelope bbox;
 
+    private boolean echo = false;
+
     private Map<String, Filter> filters = new HashMap<>();
 
     private String[] fields;
@@ -37,11 +39,12 @@ public class Query {
     public Query() {
     }
 
-    public Query(String q, Envelope bbox, String geoField, String fieldSet, List<String> fields, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters, Map<String, Object> headers) {
+    public Query(String q, Envelope bbox, boolean echo, String geoField, String fieldSet, List<String> fields, int offset, int limit, List<Sort> sorts, Map<String, Aggregation> aggs, Map<String, Filter> filters, Map<String, Object> headers) {
         this.q = q;
         this.offset = offset;
         this.limit = limit;
         this.bbox = bbox;
+        this.echo = echo;
         this.geoField = geoField;
         this.fields = fields.toArray(new String[fields.size()]);
         this.fieldSet = fieldSet;
@@ -76,6 +79,10 @@ public class Query {
         return fieldSet;
     }
 
+    public boolean getEcho() {
+        return echo;
+    }
+
     public String[] getFields() {
         return fields;
     }
@@ -106,5 +113,13 @@ public class Query {
 
     public Sort[] getSorts() {
         return sorts;
+    }
+
+    public boolean isEcho() {
+        return echo;
+    }
+
+    public void setEcho(boolean echo) {
+        this.echo = echo;
     }
 }

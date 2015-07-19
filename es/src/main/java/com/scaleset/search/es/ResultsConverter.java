@@ -90,7 +90,8 @@ public class ResultsConverter<T, K> {
         addItems();
         addAggregations();
         addHeaders();
-        Results<T> results = new Results<T>(query, aggs, items, totalItems, null, headers);
+        List<String> fields = null;
+        Results<T> results = new Results<T>(query, aggs, items, totalItems, null, headers, fields);
         return results;
     }
 

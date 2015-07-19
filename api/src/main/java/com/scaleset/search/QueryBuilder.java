@@ -12,6 +12,7 @@ public class QueryBuilder {
 
     private Map<String, Aggregation> aggregations = new HashMap<>();
     private Envelope bbox;
+    private boolean echo = false;
     private String geoField;
     private Map<String, Filter> filters = new HashMap<>();
     private int offset = 0;
@@ -30,6 +31,7 @@ public class QueryBuilder {
             this.q = prototype.getQ();
             this.offset = prototype.getOffset();
             this.limit = prototype.getLimit();
+            this.echo = prototype.getEcho();
             this.fieldSet = prototype.getFieldSet();
             this.aggregations(prototype.getAggs());
             this.filters(prototype.getFilters());
@@ -95,18 +97,17 @@ public class QueryBuilder {
     }
 
     public Query build() {
-        Query result = new Query(q, bbox, geoField, fieldSet, fields, offset, limit, sorts, aggregations, filters, headers);
+        Query result = new Query(q, bbox, echo, geoField, fieldSet, fields, offset, limit, sorts, aggregations, filters, headers);
         return result;
     }
 
     public QueryBuilder echo(boolean echo) {
-        headers.put("echo", echo);
+        this.echo = echo;
         return this;
     }
 
     public QueryBuilder echo() {
-        headers.put("echo", true);
-        return this;
+        return echo(true);
     }
 
     public QueryBuilder field(String... fields) {
