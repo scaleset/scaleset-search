@@ -43,6 +43,7 @@
         <module>api</module>
         <module>mongo</module>
         <module>es</module>
+        <module>pojo</module>
     </modules>
 
     <build>
