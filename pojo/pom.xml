@@ -8,10 +8,10 @@
         <version>0.24.0</version>
     </parent>
 
-    <artifactId>scaleset-search-mongo</artifactId>
+    <artifactId>scaleset-filter</artifactId>
     <packaging>jar</packaging>
-    <name>scaleset-search-mongo</name>
-    <description>Java object model for representing query requests in REST protocols.</description>
+    <name>scaleset-filter</name>
+    <description>Simple in-memory implementation of search api</description>
 
     <dependencies>
 
@@ -19,40 +19,6 @@
             <groupId>com.scaleset</groupId>
             <artifactId>scaleset-search-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>2.12.2</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.5</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -74,10 +40,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jongo</groupId>
-            <artifactId>jongo</artifactId>
-            <version>1.1</version>
-            <scope>provided</scope>
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
+            <version>2.1.7.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
         </dependency>
 
     </dependencies>

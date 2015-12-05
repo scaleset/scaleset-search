@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@JsonPropertyOrder({"headers", "query", "totalItems", "aggs", "bbox", "items"})
+@JsonPropertyOrder({"headers", "query", "totalItems", "aggs", "bbox", "fields", "items"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Results<T> {
 

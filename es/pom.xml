@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.scaleset</groupId>
         <artifactId>scaleset-search</artifactId>
-        <version>0.23.0</version>
+        <version>0.24.0</version>
     </parent>
 
     <artifactId>scaleset-search-es</artifactId>

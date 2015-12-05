@@ -109,6 +109,7 @@ public class ResultsConverter<T, K> {
         register("terms", new TermAggregationConverter());
         register("filter", new FilterAggregationConverter());
         register("range", new RangeAggregationConverter());
+        register("date_range", new DateRangeAggregationConverter());
         register("stats", new StatsAggregationConverter());
         register("geohash_grid", new GeoHashGridAggregationConverter());
         register("geohash_grid_stats", new GeoHashGridStatsAggregationConverter());

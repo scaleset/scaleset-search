@@ -160,7 +160,7 @@ public class MongoQueryConverter<T> {
         if (children.size() == 1) {
             result = (DBObject) children.get(0);
         } else {
-            boolean conjunction = (andCount > 1 || notCount > 1);
+            boolean conjunction = (andCount + notCount > 1);
             // inverse is out boolean clause is prohibited as a whole
             if (prohibited) {
                 conjunction = !conjunction;
