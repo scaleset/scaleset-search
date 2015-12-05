@@ -234,6 +234,7 @@ public class DefaultQueryConverter implements QueryConverter {
         register("geohash_grid", new GeoHashGridAggregationConverter());
         register("filter", new FilterAggregationConverter());
         register("range", new RangeAggregationConverter());
+        register("daterange", new DateRangeAggregationConverter());
         register("stats", new StatsAggregationConverter());
         register("date_histogram", new DateHistogramAggregationConverter());
     }
