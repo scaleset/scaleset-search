@@ -32,12 +32,13 @@ public class RangeAggregationConverter extends AbstractCombinedConverter {
             for (JsonNode range : ranges) {
                 JsonNode from = range.path("from");
                 JsonNode to = range.path("to");
+                String key = range.path("key").asText(null);
                 if (from.isNumber() && to.isNumber()) {
-                    result.addRange(from.asDouble(), to.asDouble());
+                    result.addRange(key, from.asDouble(), to.asDouble());
                 } else if (from.isNumber()) {
-                    result.addUnboundedFrom(from.asDouble());
+                    result.addUnboundedFrom(key, from.asDouble());
                 } else if (to.isNumber()) {
-                    result.addUnboundedTo(to.asDouble());
+                    result.addUnboundedTo(key, to.asDouble());
                 }
             }
         }
@@ -56,7 +57,7 @@ public class RangeAggregationConverter extends AbstractCombinedConverter {
             List<Bucket> buckets = new ArrayList<>();
             for (Range.Bucket bucket : ranges.getBuckets()) {
                 String label = bucket.getFrom() + " TO " + bucket.getTo();
-                String key = "[" + label + "}";
+                String key = bucket.getKey();
                 Bucket b = new Bucket(key, bucket.getDocCount(), label);
                 buckets.add(b);
                 for (Aggregation subAgg : aggregation.getAggs().values()) {
