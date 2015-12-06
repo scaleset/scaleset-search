@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.scaleset</groupId>
     <artifactId>scaleset-search</artifactId>
-    <version>0.25.0</version>
+    <version>0.26.0</version>
     <packaging>pom</packaging>
     <name>scaleset-search</name>
     <description>Java object model for representing query requests in REST protocols.</description>
@@ -36,7 +36,11 @@
     <distributionManagement>
   	<repository>
       	<id>bintray-scaleset-maven</id>
+<<<<<<< HEAD
         <url>https://api.bintray.com/maven/scaleset/maven/com.scaleset:scaleset-search</url>
+=======
+        <url>https://api.bintray.com/maven/scaleset/maven/com.scaleset:scaleset-search/;publish=1</url>
+>>>>>>> refs/heads/release/0.26.0
 	</repository>
     </distributionManagement>
 
@@ -58,35 +62,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>releaseBranchPrefix-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.4</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
