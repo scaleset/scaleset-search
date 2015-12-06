@@ -8,9 +8,9 @@
         <version>0.24.0</version>
     </parent>
 
-    <artifactId>scaleset-filter</artifactId>
+    <artifactId>scaleset-pojo</artifactId>
     <packaging>jar</packaging>
-    <name>scaleset-filter</name>
+    <name>scaleset-pojo</name>
     <description>Simple in-memory implementation of search api</description>
 
     <dependencies>
