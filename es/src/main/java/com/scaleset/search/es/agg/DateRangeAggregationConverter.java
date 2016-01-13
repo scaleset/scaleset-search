@@ -38,8 +38,8 @@ public class DateRangeAggregationConverter extends AbstractCombinedConverter {
         ArrayNode ranges = aggregation.get(ArrayNode.class, "ranges");
         if (ranges.isArray()) {
             for (JsonNode range : ranges) {
-                Long from = toTimestamp(range.path("from"), now);
-                Long to = toTimestamp(range.path("to"), now);
+                Long from = toTimestamp(range.path("from"), now, false);
+                Long to = toTimestamp(range.path("to"), now, true);
                 String key = range.path("key").asText(null);
                 if (from != null && to != null) {
                     result.addRange(key, from, to);
@@ -55,12 +55,12 @@ public class DateRangeAggregationConverter extends AbstractCombinedConverter {
         return result;
     }
 
-    Long toTimestamp(JsonNode node, long now) {
+    Long toTimestamp(JsonNode node, long now, boolean roundCeil) {
         if (node.isNumber()) {
             return node.asLong();
         } else if (node.isTextual()) {
             String text = node.asText();
-            return dateMathParser.parse(text, now);
+            return dateMathParser.parse(text, now, roundCeil);
         } else {
             return null;
         }
