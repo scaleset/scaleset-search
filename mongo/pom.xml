@@ -83,6 +83,6 @@
     </dependencies>
 
     <properties>
-        <lucene.version>4.9.1</lucene.version>
+        <lucene.version>4.10.4</lucene.version>
     </properties>
 </project>

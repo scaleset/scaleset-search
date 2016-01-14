@@ -248,6 +248,7 @@ public class DefaultQueryConverter implements QueryConverter {
         register("type", new TypeFilterConverter());
         register("prefix", new PrefixFilterConverter());
         register("term", new TermFilterConverter());
+        register("range", new RangeFilterConverter());
     }
 
 }
