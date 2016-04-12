@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -8,42 +9,33 @@
         <version>0.30.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>scaleset-search-api</artifactId>
+    <artifactId>scaleset-search-es2</artifactId>
     <packaging>jar</packaging>
-    <name>scaleset-search-api</name>
+    <name>scaleset-search-es2</name>
     <description>Java object model for representing query requests in REST protocols.</description>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.scaleset</groupId>
-            <artifactId>scaleset-utils</artifactId>
-            <version>0.1.0</version>
+            <artifactId>scaleset-search-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.scaleset</groupId>
-            <artifactId>scaleset-geo</artifactId>
-            <version>${scaleset-geo.version}</version>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>${elasticsearch.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+            <version>0.9.1</version>
+            <scope>test</scope>
         </dependency>
+        
 
         <dependency>
             <groupId>junit</groupId>
@@ -75,8 +67,7 @@
     </dependencies>
 
     <properties>
-        <jackson.version>2.7.3</jackson.version>
-        <scaleset-geo.version>0.16.0</scaleset-geo.version>
+        <lucene.version>5.5.0</lucene.version>
+        <elasticsearch.version>2.3.1</elasticsearch.version>
     </properties>
-
 </project>
