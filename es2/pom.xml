@@ -8,9 +8,9 @@
         <version>0.30.0</version>
     </parent>
 
-    <artifactId>scaleset-search-mongo</artifactId>
+    <artifactId>scaleset-search-es2</artifactId>
     <packaging>jar</packaging>
-    <name>scaleset-search-mongo</name>
+    <name>scaleset-search-es2</name>
     <description>Java object model for representing query requests in REST protocols.</description>
 
     <dependencies>
@@ -22,11 +22,19 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>2.14.2</version>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>${elasticsearch.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+            <version>0.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        
 
         <dependency>
             <groupId>junit</groupId>
@@ -55,34 +63,10 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jongo</groupId>
-            <artifactId>jongo</artifactId>
-            <version>1.1</version>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
     <properties>
-        <lucene.version>4.10.4</lucene.version>
+        <lucene.version>5.5.0</lucene.version>
+        <elasticsearch.version>2.3.1</elasticsearch.version>
     </properties>
 </project>
